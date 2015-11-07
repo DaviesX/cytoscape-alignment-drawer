@@ -29,6 +29,7 @@ public class AlignmentDrawerApp extends AbstractCySwingApp {
 
         public AlignmentDrawerApp(CySwingAppAdapter adapter) {
                 super(adapter);
+                System.out.println("Initializing AlignmentDrawerAPP...");
                 CytoscapeLoaderService service = new CytoscapeLoaderService(adapter);
                 service.install_protocol(new GWLoader());
                 service.install_protocol(new SANAAlignLoader());

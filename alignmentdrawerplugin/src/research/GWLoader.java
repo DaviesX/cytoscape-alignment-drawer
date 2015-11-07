@@ -39,7 +39,7 @@ import org.cytoscape.work.TaskMonitor;
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class GWLoader implements FileLoaderProtocol {
-        private final String            c_GWFileExtension = "GW";
+        private final String            c_GWFileExtension = "gw";
         private final String            c_GWFileContent = "txt";
         private final DataCategory      c_GWFileCategory = DataCategory.NETWORK;
         private final String            c_GWFileDesc = "GW LEDA network file";
@@ -73,6 +73,8 @@ public class GWLoader implements FileLoaderProtocol {
 
         @Override
         public void run(TaskMonitor tm) throws Exception {
+                System.out.println("Running GW Loader...");
+                
                 m_is_canceled = false;
 
                 String text = extract_string_from_stream(m_istream);
@@ -148,6 +150,7 @@ public class GWLoader implements FileLoaderProtocol {
                 if (m_network.getEdgeCount() != num_edges) {
                         System.out.println("edge count stated in file doesn't match that have been made");
                 }
+                System.out.println("Everything has been loaded.");
         }
 
         @Override
