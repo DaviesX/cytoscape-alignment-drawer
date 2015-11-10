@@ -30,6 +30,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.cytoscape.io.DataCategory;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNetworkFactory;
+import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyRow;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.work.TaskMonitor;
@@ -50,8 +53,9 @@ public class GWLoader implements FileLoaderProtocol {
         
         private final int               c_MaxBuffering = 16384;
         private CyNetworkViewFactory    m_view_fact = null;
+        private CyNetworkFactory        m_network_fact = null;
         private InputStream             m_istream = null;
-        private AlignmentNetwork        m_network = null;
+        private CyNetwork               m_network = null;
         private boolean                 m_is_canceled = false;
         
         public GWLoader() {
@@ -68,7 +72,12 @@ public class GWLoader implements FileLoaderProtocol {
 
         @Override
         public CyNetworkView buildCyNetworkView(CyNetwork cn) {
-                return m_view_fact.createNetworkView(cn);
+                if (m_view_fact == null) {
+                        System.out.println("Have not given a network view factory");
+                        return null;
+                } else {
+                        return m_view_fact.createNetworkView(cn);
+                }
         }
 
         @Override
@@ -91,12 +100,16 @@ public class GWLoader implements FileLoaderProtocol {
                         System.out.println("Invalid LEDA.GRAPH");
                         return;
                 }
-
-                m_network = new AlignmentNetwork();
+                
+                if (m_network_fact == null) {
+                        System.out.println("Have not given a network factory");
+                        return ;
+                }
+                m_network = m_network_fact.createNetwork();
 
                 // load in nodes
                 int num_nodes = Integer.decode(lines[c_StartingLine]);
-                ArrayList<AlignmentNode> node_list = new ArrayList<>();
+                ArrayList<CyNode> node_list = new ArrayList<>();
                 String current_line;
                 Pattern regex_pattern = Pattern.compile("\\|\\{([[a-zA-Z][0-9][-][@][,][\"]]*)\\}\\|");
                 int i;
@@ -113,9 +126,13 @@ public class GWLoader implements FileLoaderProtocol {
                                 break;
                         }
                         String signature = matcher.group(1);
-                        AlignmentNode node = new AlignmentNode(signature,
-                                                               m_network,
-                                                               m_network.alloc_network_suid());
+                        CyNode node = m_network.addNode();
+                        CyRow attri = m_network.getRow(node);
+                        // customize name attribute
+                        attri.set("name", signature);
+//                        AlignmentNode node = new AlignmentNode(signature,
+//                                                               m_network,
+//                                                               m_network.alloc_network_suid());
                         node_list.add(node);
                 }
                 System.out.println("finished reading node list...");
@@ -138,10 +155,13 @@ public class GWLoader implements FileLoaderProtocol {
                         String sn1 = matcher.group(2);
                         int n0 = Integer.decode(sn0);
                         int n1 = Integer.decode(sn1);
-                        AlignmentNode node0 = node_list.get(n0 - 1);
-                        AlignmentNode node1 = node_list.get(n1 - 1);
+//                        AlignmentNode node0 = node_list.get(n0 - 1);
+//                        AlignmentNode node1 = node_list.get(n1 - 1);
+                        CyNode node0 = node_list.get(n0 - 1);
+                        CyNode node1 = node_list.get(n1 - 1);
                         // Create an edge between node1 and node2
-                        m_network.make_edge(node0, node1);
+//                        m_network.make_edge(node0, node1);
+                        m_network.addEdge(node0, node1, true);
                 }
                 System.out.println("finished reading edge list...");
                 if (m_network.getNodeCount() != num_nodes) {
@@ -203,5 +223,10 @@ public class GWLoader implements FileLoaderProtocol {
         @Override
         public void set_view_factory(CyNetworkViewFactory fact) {
                 m_view_fact = fact;
+        }
+
+        @Override
+        public void set_network_factory(CyNetworkFactory fact) {
+                m_network_fact = fact;
         }
 }

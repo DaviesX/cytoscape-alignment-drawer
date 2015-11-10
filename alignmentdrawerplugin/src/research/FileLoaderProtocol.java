@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.Set;
 import org.cytoscape.io.DataCategory;
 import org.cytoscape.io.read.CyNetworkReader;
+import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 
 /**
@@ -29,6 +30,7 @@ import org.cytoscape.view.model.CyNetworkViewFactory;
  */
 public interface FileLoaderProtocol extends CyNetworkReader {
         public void             set_input_stream(InputStream s);
+        public void             set_network_factory(CyNetworkFactory fact);
         public void             set_view_factory(CyNetworkViewFactory fact);
         
         public Set<String>      get_file_extension();

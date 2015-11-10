@@ -20,6 +20,7 @@ package research;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeSet;
 import org.cytoscape.model.CyNode;
 
@@ -89,6 +90,15 @@ public class AlignmentNodeSet {
         public AlignmentNode find_node(String signature) {
                 for (AlignmentNode n : m_nodeset) {
                         if (n.hashCode() == signature.hashCode() && n.get_signature().equals(signature)) {
+                                return n;
+                        }
+                }
+                return null;
+        }
+        
+        public AlignmentNode find_node(Long suid) {
+                for (AlignmentNode n : m_nodeset) {
+                        if (Objects.equals(n.getSUID(), suid)) {
                                 return n;
                         }
                 }

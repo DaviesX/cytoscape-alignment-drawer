@@ -17,6 +17,7 @@
  */
 package research;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.cytoscape.model.CyEdge;
@@ -79,7 +80,7 @@ public class AlignmentNetwork implements CyNetwork {
 
         @Override
         public boolean removeNodes(Collection<CyNode> clctn) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return false;
         }
 
         @Override
@@ -93,7 +94,7 @@ public class AlignmentNetwork implements CyNetwork {
 
         @Override
         public boolean removeEdges(Collection<CyEdge> clctn) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return false;
         }
 
         @Override
@@ -126,7 +127,10 @@ public class AlignmentNetwork implements CyNetwork {
 
         @Override
         public boolean containsEdge(CyEdge cyedge) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                if (cyedge.getClass() != AlignmentEdge.class) {
+                        return false;
+                }
+                return null != m_edge_set.find_edge((AlignmentEdge) cyedge);
         }
 
         @Override
@@ -144,12 +148,12 @@ public class AlignmentNetwork implements CyNetwork {
 
         @Override
         public CyNode getNode(long l) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return m_node_set.find_node(l);
         }
 
         @Override
         public CyEdge getEdge(long l) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return m_edge_set.find_edge(l);
         }
 
         @Override
@@ -172,42 +176,42 @@ public class AlignmentNetwork implements CyNetwork {
 
         @Override
         public Iterable<CyEdge> getAdjacentEdgeIterable(CyNode cynode, CyEdge.Type type) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return null;
         }
 
         @Override
         public List<CyEdge> getConnectingEdgeList(CyNode cynode, CyNode cynode1, CyEdge.Type type) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return new ArrayList<>();
         }
 
         @Override
         public CyTable getDefaultNetworkTable() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return null;
         }
 
         @Override
         public CyTable getDefaultNodeTable() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return null;
         }
 
         @Override
         public CyTable getDefaultEdgeTable() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return null;
         }
 
         @Override
         public CyTable getTable(Class<? extends CyIdentifiable> type, String string) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return null;
         }
 
         @Override
         public CyRow getRow(CyIdentifiable ci, String string) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return null;
         }
 
         @Override
         public CyRow getRow(CyIdentifiable ci) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return null;
         }
 
         @Override

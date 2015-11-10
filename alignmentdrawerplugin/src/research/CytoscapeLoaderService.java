@@ -52,6 +52,7 @@ class GWLoaderInputStreamFactory implements InputStreamTaskFactory {
         public TaskIterator createTaskIterator(InputStream in, String string) {
                 m_protocol.set_input_stream(in);
                 m_protocol.set_view_factory(m_view_fact);
+                m_protocol.set_network_factory(m_network_fact);
                 return new TaskIterator(m_protocol);
         }
 

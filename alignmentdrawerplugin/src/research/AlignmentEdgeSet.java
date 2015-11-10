@@ -76,6 +76,15 @@ public class AlignmentEdgeSet {
                 return null;
         }
         
+        public AlignmentEdge find_edge(Long suid) {
+                for (AlignmentEdge e : m_edgeset) {
+                        if (e.getSUID().equals(suid)) {
+                                return e;
+                        }
+                }
+                return null;
+        }
+        
         public int size() {
                 return m_edgeset.size();
         }

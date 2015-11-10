@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.cytoscape.io.DataCategory;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.work.TaskMonitor;
@@ -43,6 +44,7 @@ public class SANAAlignLoader implements FileLoaderProtocol {
         private HashSet<String>   m_extenstion = null;
         private HashSet<String>   m_content = null;
         
+        private CyNetworkFactory        m_network_fact = null;
         private CyNetworkViewFactory    m_view_fact = null;
         private InputStream             m_istream = null;
 
@@ -106,5 +108,10 @@ public class SANAAlignLoader implements FileLoaderProtocol {
         @Override
         public void set_view_factory(CyNetworkViewFactory fact) {
                 m_view_fact = fact;
+        }
+
+        @Override
+        public void set_network_factory(CyNetworkFactory fact) {
+                m_network_fact = fact;
         }
 }
