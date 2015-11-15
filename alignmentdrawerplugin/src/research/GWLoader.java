@@ -29,10 +29,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.cytoscape.io.DataCategory;
+import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.model.CyRow;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.work.TaskMonitor;
@@ -105,7 +105,7 @@ public class GWLoader implements FileLoaderProtocol {
                         System.out.println("Have not given a network factory");
                         return ;
                 }
-                m_network = m_network_fact.createNetwork();
+                AlignmentNetwork network_mgr = new AlignmentNetwork(m_network_fact);
 
                 // load in nodes
                 int num_nodes = Integer.decode(lines[c_StartingLine]);
@@ -126,13 +126,9 @@ public class GWLoader implements FileLoaderProtocol {
                                 break;
                         }
                         String signature = matcher.group(1);
-                        CyNode node = m_network.addNode();
-                        CyRow attri = m_network.getRow(node);
-                        // customize name attribute
-                        attri.set("name", signature);
-//                        AlignmentNode node = new AlignmentNode(signature,
-//                                                               m_network,
-//                                                               m_network.alloc_network_suid());
+                        // create a node with signature
+                        CyNode node = network_mgr.make_node(signature);
+                        network_mgr.add_node_belongings(node, null);
                         node_list.add(node);
                 }
                 System.out.println("finished reading node list...");
@@ -155,15 +151,15 @@ public class GWLoader implements FileLoaderProtocol {
                         String sn1 = matcher.group(2);
                         int n0 = Integer.decode(sn0);
                         int n1 = Integer.decode(sn1);
-//                        AlignmentNode node0 = node_list.get(n0 - 1);
-//                        AlignmentNode node1 = node_list.get(n1 - 1);
                         CyNode node0 = node_list.get(n0 - 1);
                         CyNode node1 = node_list.get(n1 - 1);
-                        // Create an edge between node1 and node2
-//                        m_network.make_edge(node0, node1);
-                        m_network.addEdge(node0, node1, true);
+                        CyEdge edge = network_mgr.make_edge(node0, node1);
+                        network_mgr.add_edge_belongings(edge, null);
                 }
                 System.out.println("finished reading edge list...");
+                
+                m_network = network_mgr.get_network();
+                
                 if (m_network.getNodeCount() != num_nodes) {
                         System.out.println("node count stated in file doesn't match that of loaded");
                 }
