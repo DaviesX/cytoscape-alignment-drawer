@@ -21,11 +21,12 @@ package research;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.cytoscape.io.DataCategory;
-import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNetworkFactory;
-import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.view.model.CyNetworkViewFactory;
+import org.cytoscape.io.read.CyTableReader;
+import org.cytoscape.model.CyTable;
+import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.work.TaskMonitor;
 
 
@@ -34,19 +35,22 @@ import org.cytoscape.work.TaskMonitor;
  * 
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
-public class SANAAlignLoader implements FileLoaderProtocol {
-        private final String            c_AlignmentFileExtension = "txt";
+public class SANAAlignLoader implements FileLoaderProtocol, CyTableReader {
+        private final String            c_AlignmentFileExtension = "sanalign";
         private final String            c_AlignmentFileContent = "txt";
-        private final DataCategory      c_AlignmentFileCategory = DataCategory.UNSPECIFIED;
+        private final DataCategory      c_AlignmentFileCategory = DataCategory.TABLE;
         private final String            c_AlignmentFileDesc = "SANA Network Alignment File";
         private final String            c_AlignmentFileLoaderID = "SANAAlignmentLoader";
 
         private HashSet<String>   m_extenstion = null;
         private HashSet<String>   m_content = null;
         
-        private CyNetworkFactory        m_network_fact = null;
-        private CyNetworkViewFactory    m_view_fact = null;
+        private CyTableFactory          m_table_fact = null;
+        private CyTable                 m_table = null;
+        private NetworkAligner          m_aligner = null;
         private InputStream             m_istream = null;
+        
+        private boolean                 m_is_canceled = false;
 
         public SANAAlignLoader() {
                 m_extenstion    = new HashSet<>();
@@ -56,25 +60,47 @@ public class SANAAlignLoader implements FileLoaderProtocol {
         }
 
         @Override
-        public CyNetwork[] getNetworks() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public CyNetworkView buildCyNetworkView(CyNetwork cn) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
         public void run(TaskMonitor tm) throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                m_is_canceled = false;
+                System.out.println(getClass() + " - Running sana alignment Loader...");
+                
+                if (m_aligner == null) {
+                        throw new Exception("Object NetworkAligner is not constructed yet");
+                }
+                String[] lines = Util.extract_lines_from_stream(m_istream);
+                
+                Pattern regex_pattern = 
+                        Pattern.compile("([[a-zA-Z][0-9][-][@][,][\"]]*) ([[a-zA-Z][0-9][-][@][,][\"]]*)");
+                for (String line : lines) {
+                        if (m_is_canceled) {
+                                System.out.println(getClass() + " - Task is canceled.");
+                                return ;
+                        }
+                        Matcher matcher = regex_pattern.matcher(line);
+                        if (!matcher.matches()) {
+                                // finished reading the alignment file
+                                break;
+                        }
+                        String sn0 = matcher.group(1);
+                        String sn1 = matcher.group(2);
+                        m_aligner.add_data_aligned_node_pair(sn0, sn1);
+                }
+                
+                m_table = m_aligner.get_data();
+                System.out.println(getClass() + " - Finished reading sana alignment data...");
+                System.out.println(getClass() + " - Everything has been loaded.");
         }
 
         @Override
         public void cancel() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                m_is_canceled = true;
         }
-
+        
+        @Override
+        public CyTable[] getTables() {
+                return new CyTable[]{m_table};
+        }
+        
         @Override
         public Set<String> get_file_extension() {
                 return m_extenstion;
@@ -106,12 +132,11 @@ public class SANAAlignLoader implements FileLoaderProtocol {
         }
 
         @Override
-        public void set_view_factory(CyNetworkViewFactory fact) {
-                m_view_fact = fact;
+        public void set_loader_service(CytoscapeLoaderService service) {
+                m_table_fact = service.get_table_factory();
+                m_aligner = new NetworkAligner(m_table_fact);
+                m_table = m_aligner.get_data();
         }
 
-        @Override
-        public void set_network_factory(CyNetworkFactory fact) {
-                m_network_fact = fact;
-        }
+        
 }

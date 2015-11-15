@@ -18,17 +18,14 @@
 
 package research;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.cytoscape.io.DataCategory;
+import org.cytoscape.io.read.CyNetworkReader;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNetworkFactory;
@@ -41,7 +38,7 @@ import org.cytoscape.work.TaskMonitor;
  * Actually implementation of GW file loader
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
-public class GWLoader implements FileLoaderProtocol {
+public class GWLoader implements CyNetworkReader, FileLoaderProtocol {
         private final String            c_GWFileExtension = "gw";
         private final String            c_GWFileContent = "txt";
         private final DataCategory      c_GWFileCategory = DataCategory.NETWORK;
@@ -50,9 +47,8 @@ public class GWLoader implements FileLoaderProtocol {
 
         private HashSet<String>         m_extenstion = null;
         private HashSet<String>         m_content = null;
-        
-        private final int               c_MaxBuffering = 16384;
-        private CyNetworkViewFactory    m_view_fact = null;
+
+        private CyNetworkViewFactory    m_network_view_fact = null;
         private CyNetworkFactory        m_network_fact = null;
         private InputStream             m_istream = null;
         private CyNetwork               m_network = null;
@@ -72,22 +68,21 @@ public class GWLoader implements FileLoaderProtocol {
 
         @Override
         public CyNetworkView buildCyNetworkView(CyNetwork cn) {
-                if (m_view_fact == null) {
+                if (m_network_view_fact == null) {
                         System.out.println("Have not given a network view factory");
                         return null;
                 } else {
-                        return m_view_fact.createNetworkView(cn);
+                        return m_network_view_fact.createNetworkView(cn);
                 }
         }
 
         @Override
         public void run(TaskMonitor tm) throws Exception {
-                System.out.println("Running GW Loader...");
+                System.out.println(getClass() + " - Running GW Loader...");
                 
                 m_is_canceled = false;
 
-                String text = extract_string_from_stream(m_istream);
-                String[] lines = text.split("\n");
+                String[] lines = Util.extract_lines_from_stream(m_istream);
 
                 // GW file header:
                 // LEDA.GRAPH
@@ -97,13 +92,11 @@ public class GWLoader implements FileLoaderProtocol {
                 final int c_MinLines = 5;
                 final int c_StartingLine = 4;
                 if (lines.length < c_MinLines || !lines[0].equals("LEDA.GRAPH")) {
-                        System.out.println("Invalid LEDA.GRAPH");
-                        return;
+                        throw new Exception("Invalid LEDA.GRAPH");
                 }
                 
                 if (m_network_fact == null) {
-                        System.out.println("Have not given a network factory");
-                        return ;
+                        throw new Exception("Have not given a network factory");
                 }
                 AlignmentNetwork network_mgr = new AlignmentNetwork(m_network_fact);
 
@@ -115,7 +108,7 @@ public class GWLoader implements FileLoaderProtocol {
                 int i;
                 for (i = c_StartingLine + 1; i < lines.length; i++) {
                         if (m_is_canceled) {
-                                System.out.println("Tasks canceled: " + this.getClass());
+                                System.out.println(getClass() + " - Tasks canceled.");
                                 return ;
                         }
                         current_line = lines[i];
@@ -131,13 +124,13 @@ public class GWLoader implements FileLoaderProtocol {
                         network_mgr.add_node_belongings(node, null);
                         node_list.add(node);
                 }
-                System.out.println("finished reading node list...");
+                System.out.println(getClass() + " - Finished reading node list...");
                 // load in edges
                 int num_edges = Integer.decode(lines[i++]);
                 Pattern regex_pattern2 = Pattern.compile("([0-9]*) ([0-9]*) [0-9]* \\|\\{\\}\\|");
                 for (; i < lines.length; i++) {
                         if (m_is_canceled) {
-                                System.out.println("Tasks canceled: " + this.getClass());
+                                System.out.println(getClass() + " - Tasks canceled.");
                                 return ;
                         }
                         current_line = lines[i];
@@ -156,36 +149,24 @@ public class GWLoader implements FileLoaderProtocol {
                         CyEdge edge = network_mgr.make_edge(node0, node1);
                         network_mgr.add_edge_belongings(edge, null);
                 }
-                System.out.println("finished reading edge list...");
+                System.out.println(getClass() + " - Finished reading edge list...");
                 
                 m_network = network_mgr.get_network();
                 
                 if (m_network.getNodeCount() != num_nodes) {
-                        System.out.println("node count stated in file doesn't match that of loaded");
+                        throw new Exception("node count stated in file doesn't match that of loaded");
                 }
                 if (m_network.getEdgeCount() != num_edges) {
-                        System.out.println("edge count stated in file doesn't match that have been made");
+                        throw new Exception("edge count stated in file doesn't match that have been made");
                 }
-                System.out.println("Everything has been loaded.");
+                System.out.println(getClass() + " - Everything has been loaded.");
         }
 
         @Override
         public void cancel() {
                 m_is_canceled = true;
         }
-        
-        private String extract_string_from_stream(InputStream source) throws IOException {
-		StringWriter writer = new StringWriter();
-		try (   BufferedReader reader = new BufferedReader(new InputStreamReader(source))) {
-			char[] buffer = new char[c_MaxBuffering];
-			int charactersRead = reader.read(buffer, 0, buffer.length);
-			while (charactersRead != -1) {
-				writer.write(buffer, 0, charactersRead);
-				charactersRead = reader.read(buffer, 0, buffer.length);
-			}
-		}
-		return writer.toString();
-	}
+
         @Override
         public Set<String> get_file_extension() {
                 return m_extenstion;
@@ -217,12 +198,8 @@ public class GWLoader implements FileLoaderProtocol {
         }
 
         @Override
-        public void set_view_factory(CyNetworkViewFactory fact) {
-                m_view_fact = fact;
-        }
-
-        @Override
-        public void set_network_factory(CyNetworkFactory fact) {
-                m_network_fact = fact;
+        public void set_loader_service(CytoscapeLoaderService service) {
+                m_network_fact          = service.get_network_factory();
+                m_network_view_fact     = service.get_network_view_factory();
         }
 }

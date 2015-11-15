@@ -24,6 +24,7 @@ import org.cytoscape.io.BasicCyFileFilter;
 import org.cytoscape.io.CyFileFilter;
 import org.cytoscape.io.read.InputStreamTaskFactory;
 import org.cytoscape.model.CyNetworkFactory;
+import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.work.TaskIterator;
 
@@ -32,27 +33,23 @@ import org.cytoscape.work.TaskIterator;
  * Direct the InputStream to our FileLoaderProtocol in order to create a network.
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
-class GWLoaderInputStreamFactory implements InputStreamTaskFactory {
-        private final CyNetworkFactory        m_network_fact;
-        private final CyNetworkViewFactory    m_view_fact;
-        private final BasicCyFileFilter       m_filter;
-        private final FileLoaderProtocol      m_protocol;
+class LoaderInputStreamFactory implements InputStreamTaskFactory {
+        private final BasicCyFileFilter         m_filter;
+        private final FileLoaderProtocol        m_protocol;
+        private final CytoscapeLoaderService    m_service;
 
-        public GWLoaderInputStreamFactory(FileLoaderProtocol protocol,
+        public LoaderInputStreamFactory(FileLoaderProtocol protocol,
                                           BasicCyFileFilter filter,
-                                          CyNetworkFactory network_fact,
-                                          CyNetworkViewFactory view_fact) {
-                m_filter        = filter;
-                m_network_fact  = network_fact;
-                m_view_fact     = view_fact;
-                m_protocol      = protocol;
+                                          CytoscapeLoaderService service) {
+                m_filter                = filter;
+                m_service               = service;
+                m_protocol              = protocol;
         }
 
         @Override
         public TaskIterator createTaskIterator(InputStream in, String string) {
                 m_protocol.set_input_stream(in);
-                m_protocol.set_view_factory(m_view_fact);
-                m_protocol.set_network_factory(m_network_fact);
+                m_protocol.set_loader_service(m_service);
                 return new TaskIterator(m_protocol);
         }
 
@@ -80,20 +77,29 @@ public class CytoscapeLoaderService {
         }
         
         public boolean install_protocol(FileLoaderProtocol protocol) {
+                System.out.println(getClass() + " - Installing loader protocol: " + protocol + "...");
                 BasicCyFileFilter filter = new BasicCyFileFilter(protocol.get_file_extension(), 
                                                                  protocol.get_file_content_type(),
                                                                  protocol.get_file_description(), 
                                                                  protocol.get_file_category(),
                                                                  m_adapter.getStreamUtil());
-                GWLoaderInputStreamFactory factory = 
-                        new GWLoaderInputStreamFactory(protocol,
-                                                       filter,
-                                                       m_adapter.getCyNetworkFactory(),
-                                                       m_adapter.getCyNetworkViewFactory());
+                LoaderInputStreamFactory factory =  new LoaderInputStreamFactory(protocol, filter, this);
                 Properties props = new Properties();
                 props.setProperty("readerDescription", protocol.get_file_description());
                 props.setProperty("readerId", protocol.get_file_loader_id());
                 m_adapter.getCyServiceRegistrar().registerService(factory, InputStreamTaskFactory.class, props);
                 return true;
+        }
+        
+        public CyNetworkFactory get_network_factory() {
+                return m_adapter.getCyNetworkFactory();
+        }
+        
+        public CyNetworkViewFactory get_network_view_factory() {
+                return m_adapter.getCyNetworkViewFactory();
+        }
+        
+        public CyTableFactory get_table_factory() {
+                return m_adapter.getCyTableFactory();
         }
 }

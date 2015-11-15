@@ -20,6 +20,7 @@ package research;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
@@ -136,6 +137,7 @@ public class AlignmentNetwork {
 //                                return m_network.getNode(ref);
 //                        }
 //                }
+                if (rows.size() != 1) return null;
                 CyRow row = rows.iterator().next();
                 Long ref  = row.get(c_SUIDReferenceSlot, Long.class);
                 return m_network.getNode(ref);
@@ -149,5 +151,51 @@ public class AlignmentNetwork {
         
         public int add_edge_belongings(CyEdge edge, CyNetwork network) {
                 return add_object_belongings(edge, network);
+        }
+        
+        class NodeIterator implements Iterator<String> {
+
+                @Override
+                public boolean hasNext() {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public String next() {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public void remove() {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+        }
+        
+        class Edge {
+                public String m_e0;
+                public String m_e1;
+                
+                Edge(String e0, String e1) {
+                        m_e0 = e0;
+                        m_e1 = e1;
+                }
+        }
+        
+        class EdgeIterator implements Iterator<Edge> {
+
+                @Override
+                public boolean hasNext() {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public Edge next() {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public void remove() {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
         }
 }
