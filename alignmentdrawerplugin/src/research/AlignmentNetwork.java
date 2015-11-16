@@ -148,7 +148,7 @@ public class AlignmentNetwork {
                 attri.set(CyNetwork.SELECTED, is_selected);
         }
         
-        public CyNode get_node_from_signature(String signature) {
+        public CyNode get_node_from_signature(String signature) throws Exception {
                 CyTable table = m_network.getDefaultNodeTable();
                 Collection<CyRow> rows = table.getMatchingRows(c_NodeSignatureSlot, signature);
 //                List<CyRow> rows = table.getAllRows();
@@ -159,7 +159,7 @@ public class AlignmentNetwork {
 //                                return m_network.getNode(ref);
 //                        }
 //                }
-                if (rows.size() != 1) return null;
+                if (rows.isEmpty()) return null;
                 CyRow row = rows.iterator().next();
                 Long ref  = row.get(c_SUIDReferenceSlot, Long.class);
                 return m_network.getNode(ref);

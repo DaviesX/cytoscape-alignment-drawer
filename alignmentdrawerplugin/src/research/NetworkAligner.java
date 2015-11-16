@@ -77,7 +77,7 @@ public class NetworkAligner {
         }
         
         public void align_networks_from_data(AlignmentNetwork network0, AlignmentNetwork network1,
-                                                AlignmentNetwork aligned) {
+                                                AlignmentNetwork aligned) throws Exception {
                 aligned.set_suggested_name(network0.get_suggested_name() + "_" + network1.get_suggested_name());
                 
                 // Create the bidirectional maps for lookup
@@ -138,7 +138,24 @@ public class NetworkAligner {
                         } else {
                                 node1 = aligned.get_node_from_signature(edge_sig.m_e1);
                         }
-                        if (node0 == null || node1 == null) continue;
+                        if (node0 == null) {
+                                if (network1_0.containsKey(edge_sig.m_e0)) {
+                                        throw new Exception("node0 not found from the first network: " + 
+                                                            edge_sig.m_e0 + "->" + network1_0.get(edge_sig.m_e0));
+                                } else {
+                                        throw new Exception("node0 not found from the current network: " + 
+                                                            edge_sig.m_e0);
+                                }
+                        }
+                        if (node1 == null) {
+                                if (network1_0.containsKey(edge_sig.m_e0)) {
+                                        throw new Exception("node1 not found from the first network: " + 
+                                                            edge_sig.m_e1 + "->" + network1_0.get(edge_sig.m_e1));
+                                } else {
+                                        throw new Exception("node1 not found from the current network: " + 
+                                                            edge_sig.m_e1);
+                                }
+                        }
                         if (!network1_0.containsKey(edge_sig.m_e0) || !network0_1.containsKey(edge_sig.m_e1)) {
                                 // This edge is not aligned
                                 CyEdge edge = aligned.make_edge(node0, node1);

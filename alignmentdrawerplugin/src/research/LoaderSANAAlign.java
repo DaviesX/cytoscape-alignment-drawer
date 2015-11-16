@@ -84,8 +84,8 @@ public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
                         }
                         Matcher matcher = regex_pattern.matcher(line);
                         if (!matcher.matches()) {
-                                // finished reading the alignment file
-                                break;
+                                // The alignment file is invalid
+                                throw new Exception("The alignement file contains illegal formatted line: " +  line);
                         }
                         String sn0 = matcher.group(1);
                         String sn1 = matcher.group(2);
