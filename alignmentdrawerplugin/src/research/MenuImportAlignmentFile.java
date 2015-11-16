@@ -61,7 +61,7 @@ class LoadAlignmentDataTask implements Task {
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class MenuImportAlignmentFile implements MenuProtocol{
-        private final String            c_MenuName = "Import SANA Alignment File";
+        private final String            c_MenuName = "SANA Alignment File";
         private final String            c_ParentMenuName = "File.Import";
         
         private CytoscapeMenuService    m_service = null;
@@ -88,7 +88,7 @@ public class MenuImportAlignmentFile implements MenuProtocol{
                 // Manually take the task to import the alignment data
                 Set<String> ext = m_sana_align.get_file_extension();
                 File file = Util.run_file_chooser(m_sana_align.get_file_description(), 
-                                                    ext.iterator().next());
+                                                  ext.iterator().next());
                 if (file != null) {
                         try {
                                 FileInputStream stream = new FileInputStream(file.getPath());

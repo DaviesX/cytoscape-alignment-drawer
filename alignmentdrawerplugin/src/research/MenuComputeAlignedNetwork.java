@@ -122,10 +122,10 @@ public class MenuComputeAlignedNetwork implements MenuProtocol {
                 // Get networks from user's choice
                 String g0 = Util.run_dialog(network_set_string(),
                                             "Available networks",
-                                            "Please choose G0 from the following network");
+                                            "Please choose g0 from the following network");
                 String g1 = Util.run_dialog(network_set_string(),
                                             "Available networks",
-                                            "Please choose G1 from the following network");
+                                            "Please choose g1 from the following network");
                 CyNetwork cyg0 = get_selected_network(g0);
                 CyNetwork cyg1 = get_selected_network(g1);
                 if (cyg0 == null) {

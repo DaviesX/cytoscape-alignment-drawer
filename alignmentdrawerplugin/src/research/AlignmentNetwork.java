@@ -38,6 +38,8 @@ public class AlignmentNetwork {
         private final String            c_NodeSignatureSlot = "AlignNodeSig";
         private final String            c_BelongingSlot = "AlignNodeBelonging";
         private final String            c_SUIDReferenceSlot = ".SUID";
+        private final String            c_EdgeSignature0Slot = "AlignEdgeSig0";
+        private final String            c_EdgeSignature1Slot = "AlignEdgeSig1";
         private CyNetwork               m_network = null;
         
         private boolean build_node_attributes(CyNetwork network) {
@@ -68,6 +70,14 @@ public class AlignmentNetwork {
                         is_compatible = false;
                         edge_table.createColumn(c_SUIDReferenceSlot, Long.class, false);
                 }
+                if (edge_table.getColumn(c_EdgeSignature0Slot) == null) {
+                        is_compatible = false;
+                        edge_table.createColumn(c_EdgeSignature0Slot, String.class, false);
+                }
+                if (edge_table.getColumn(c_EdgeSignature1Slot) == null) {
+                        is_compatible = false;
+                        edge_table.createColumn(c_EdgeSignature1Slot, String.class, false);
+                }
                 return is_compatible;
         }
         
@@ -76,8 +86,8 @@ public class AlignmentNetwork {
          * @param network network to be imported
          */
         AlignmentNetwork(CyNetwork network) throws Exception {
-                if (build_node_attributes(network) != true) {
-                        throw new Exception(this.getClass() + ": This network is not a compatible alignment network");
+                if (!build_node_attributes(network)) {
+                        System.out.println(this.getClass() + " - This network is not a compatible alignment network");
                 }
         }
         
@@ -117,8 +127,20 @@ public class AlignmentNetwork {
                 }
         }
         
+        private boolean is_object_belong_to(CyIdentifiable object, CyNetwork network) {
+                if (network == null) network = m_network;
+                CyRow attri = m_network.getRow(object);
+                List<Long> belonging_list = attri.getList(c_BelongingSlot, Long.class);
+                
+                return belonging_list != null && belonging_list.contains(network.getSUID());
+        }
+        
         public int add_node_belongings(CyNode node, CyNetwork network) {
                 return add_object_belongings(node, network);
+        }
+        
+        public boolean is_node_belong_to(CyNode node, CyNetwork network) {
+                return is_object_belong_to(node, network);
         }
         
         public void set_node_selected(CyNode node, Boolean is_selected) {
@@ -144,8 +166,13 @@ public class AlignmentNetwork {
         }
         
         public CyEdge make_edge(CyNode node0, CyNode node1) {
-                CyEdge edge = m_network.addEdge(node0, node1, true);
-                m_network.getRow(edge).set(c_SUIDReferenceSlot, edge.getSUID());
+                CyEdge edge = m_network.addEdge(node0, node1, false);
+                CyRow edge_attri = m_network.getRow(edge);
+                edge_attri.set(c_SUIDReferenceSlot, edge.getSUID());
+                String sig0 = m_network.getRow(node0).get(c_NodeSignatureSlot, String.class);
+                String sig1 = m_network.getRow(node1).get(c_NodeSignatureSlot, String.class);
+                edge_attri.set(c_EdgeSignature0Slot, sig0);
+                edge_attri.set(c_EdgeSignature1Slot, sig1);
                 return edge;
         }
         
@@ -153,25 +180,50 @@ public class AlignmentNetwork {
                 return add_object_belongings(edge, network);
         }
         
-        class NodeIterator implements Iterator<String> {
-
+        public String get_suggested_name() {
+                return m_network.getRow(m_network).get(CyNetwork.NAME, String.class);
+        }
+        
+        public void set_suggested_name(String name) {
+                m_network.getRow(m_network).set(CyNetwork.NAME, name);
+        }
+        
+        public NodeIterator NodeIterator() {
+                return new NodeIterator(m_network);
+        }
+        
+        public EdgeIterator EdgeIterator() {
+                return new EdgeIterator(m_network);
+        }
+        
+        public class NodeIterator implements Iterator<String> {
+                private final List<CyRow>          m_rows;
+                private final Iterator<CyRow>      m_row_it;
+                private final CyNetwork            m_network;
+                
+                NodeIterator(CyNetwork network) {
+                        m_network = network;
+                        m_rows = m_network.getDefaultNodeTable().getAllRows();
+                        m_row_it = m_rows.iterator();
+                }
+                
                 @Override
                 public boolean hasNext() {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        return m_row_it.hasNext();
                 }
 
                 @Override
                 public String next() {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        return m_row_it.next().get(c_NodeSignatureSlot, String.class);
                 }
 
                 @Override
                 public void remove() {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        m_row_it.remove();
                 }
         }
         
-        class Edge {
+        public class Edge {
                 public String m_e0;
                 public String m_e1;
                 
@@ -181,21 +233,33 @@ public class AlignmentNetwork {
                 }
         }
         
-        class EdgeIterator implements Iterator<Edge> {
-
+        public class EdgeIterator implements Iterator<Edge> {
+                private final List<CyRow>             m_rows;
+                private final Iterator<CyRow>         m_row_it;
+                private final CyNetwork               m_network;
+                
+                EdgeIterator(CyNetwork network) {
+                        m_network = network;
+                        m_rows = m_network.getDefaultEdgeTable().getAllRows();
+                        m_row_it = m_rows.iterator();
+                }
+                
                 @Override
                 public boolean hasNext() {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        return m_row_it.hasNext();
                 }
 
                 @Override
                 public Edge next() {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        CyRow edge_attri = m_row_it.next();
+                        String sig0 = edge_attri.get(c_EdgeSignature0Slot, String.class);
+                        String sig1 = edge_attri.get(c_EdgeSignature1Slot, String.class);
+                        return new Edge(sig0, sig1);
                 }
 
                 @Override
                 public void remove() {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        m_row_it.remove();
                 }
         }
 }

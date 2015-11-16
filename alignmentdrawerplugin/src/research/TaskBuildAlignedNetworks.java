@@ -21,6 +21,7 @@ package research;
 import org.cytoscape.app.swing.CySwingAppAdapter;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyTable;
+import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskMonitor;
 
@@ -55,14 +56,16 @@ public class TaskBuildAlignedNetworks implements Task {
                 AlignmentNetwork g1 = new AlignmentNetwork(m_g1);
                 CyNetwork cyaligned = m_adapter.getCyNetworkFactory().createNetwork();
                 AlignmentNetwork aligned = new AlignmentNetwork(cyaligned);
-                
                 aligner.align_networks_from_data(g0, g1, aligned);
+                
                 // Configure the style
                 NetworkConfigurator config = new NetworkConfigurator(aligned);
                 config.configure();
                 CyNetwork final_aligned = config.export_cy_network();
                 // Put new network to the manager
                 m_adapter.getCyNetworkManager().addNetwork(final_aligned);
+                CyNetworkView view = m_adapter.getCyNetworkViewFactory().createNetworkView(final_aligned);
+                m_adapter.getCyNetworkViewManager().addNetworkView(view);
                 
                 tm.setProgress(1.0);
                 

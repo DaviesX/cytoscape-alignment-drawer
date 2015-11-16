@@ -19,6 +19,10 @@
 package research;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyNode;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
@@ -74,5 +78,72 @@ public class NetworkAligner {
         
         public void align_networks_from_data(AlignmentNetwork network0, AlignmentNetwork network1,
                                                 AlignmentNetwork aligned) {
+                aligned.set_suggested_name(network0.get_suggested_name() + "_" + network1.get_suggested_name());
+                
+                // Create the bidirectional maps for lookup
+                HashMap<String, String> network0_1 = new HashMap<>();
+                HashMap<String, String> network1_0 = new HashMap<>();
+                List<CyRow> rows = m_table.getAllRows();
+                for (CyRow row : rows) {
+                        List<String> sigs = row.getList(c_NodesSignatureSlot, String.class);
+                        network0_1.put(sigs.get(0), sigs.get(1));
+                        network1_0.put(sigs.get(1), sigs.get(0));
+                }
+                // Add all the data from the first network, and add belongings according to alignment data
+                // Add nodes 0
+                for (AlignmentNetwork.NodeIterator i = network0.NodeIterator(); i.hasNext(); ) {
+                        String sig = i.next();
+                        CyNode node = aligned.make_node(sig);
+                        aligned.add_node_belongings(node, network0.get_network());
+                        if (network0_1.containsKey(sig)) {
+                                // This node can be aligned
+                                aligned.add_node_belongings(node, network1.get_network());
+                        }
+                }
+                // Add edges 0
+                for (AlignmentNetwork.EdgeIterator i = network0.EdgeIterator(); i.hasNext(); ) {
+                        AlignmentNetwork.Edge edge_sig = i.next();
+                        CyNode node0 = aligned.get_node_from_signature(edge_sig.m_e0);
+                        CyNode node1 = aligned.get_node_from_signature(edge_sig.m_e1);
+                        CyEdge edge = aligned.make_edge(node0, node1);
+                        aligned.add_edge_belongings(edge, network0.get_network());
+                        if (network0_1.containsKey(edge_sig.m_e0) && network0_1.containsKey(edge_sig.m_e1)) {
+                                // This edge can be aligned
+                                aligned.add_edge_belongings(edge, network1.get_network());
+                        }
+                }
+                // Add second network but exclude nodes and edges that are already in the first network
+                // Add nodes 1
+                for (AlignmentNetwork.NodeIterator i = network1.NodeIterator(); i.hasNext(); ) {
+                        String sig = i.next();
+                        if (!network1_0.containsKey(sig)) {
+                                // This node is not aligned
+                                CyNode node = aligned.make_node(sig);
+                                aligned.add_node_belongings(node, network1.get_network());
+                        }
+                }
+                // Add edges 1
+                for (AlignmentNetwork.EdgeIterator i = network1.EdgeIterator(); i.hasNext(); ) {
+                        AlignmentNetwork.Edge edge_sig = i.next();
+                        CyNode node0, node1;
+                        if (network1_0.containsKey(edge_sig.m_e0)) {
+                                String translated = network1_0.get(edge_sig.m_e0);
+                                node0 = aligned.get_node_from_signature(translated);
+                        } else {
+                                node0 = aligned.get_node_from_signature(edge_sig.m_e0);
+                        }
+                        if (network1_0.containsKey(edge_sig.m_e1)) {
+                                String translated = network1_0.get(edge_sig.m_e1);
+                                node1 = aligned.get_node_from_signature(translated);
+                        } else {
+                                node1 = aligned.get_node_from_signature(edge_sig.m_e1);
+                        }
+                        if (node0 == null || node1 == null) continue;
+                        if (!network1_0.containsKey(edge_sig.m_e0) || !network0_1.containsKey(edge_sig.m_e1)) {
+                                // This edge is not aligned
+                                CyEdge edge = aligned.make_edge(node0, node1);
+                                aligned.add_edge_belongings(edge, network1.get_network());
+                        }
+                }
         }
 }

@@ -24,14 +24,16 @@ import org.cytoscape.model.CyNetwork;
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class NetworkConfigurator {
+        private AlignmentNetwork        m_network;
         
         NetworkConfigurator(AlignmentNetwork network) {
+                m_network = network;
         }
         
         void configure() {
         }
         
         CyNetwork export_cy_network() {
-                return null;
+                return m_network.get_network();
         }
 }
