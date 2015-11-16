@@ -38,7 +38,7 @@ import org.cytoscape.work.TaskMonitor;
  * Actually implementation of GW file loader
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
-public class GWLoader implements CyNetworkReader, FileLoaderProtocol {
+public class LoaderGW implements CyNetworkReader, LoaderProtocol {
         private final String            c_GWFileExtension = "gw";
         private final String            c_GWFileContent = "txt";
         private final DataCategory      c_GWFileCategory = DataCategory.NETWORK;
@@ -54,7 +54,7 @@ public class GWLoader implements CyNetworkReader, FileLoaderProtocol {
         private CyNetwork               m_network = null;
         private boolean                 m_is_canceled = false;
         
-        public GWLoader() {
+        public LoaderGW() {
                 m_extenstion    = new HashSet<>();
                 m_content       = new HashSet<>();
                 m_extenstion.add(c_GWFileExtension);

@@ -17,28 +17,39 @@
  */
 package research;
 
-import org.cytoscape.app.swing.AbstractCySwingApp;
+import java.awt.event.ActionEvent;
 import org.cytoscape.app.swing.CySwingAppAdapter;
 
+
 /**
- * Alignment Draw App entrance
- *
+ * Menu Item for importing alignment file
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
-public class AlignmentDrawerApp extends AbstractCySwingApp {
+public class MenuImportAlignmentFile implements MenuProtocol{
+        private final String            c_MenuName = "Import SANA Alignment File";
+        private final String            c_ParentMenuName = "File.Import";
+        
+        private CytoscapeMenuService    m_service = null;
+        private CySwingAppAdapter       m_adapter = null;
 
-        public AlignmentDrawerApp(CySwingAppAdapter adapter) {
-                super(adapter);
-                System.out.println(getClass() + " - Initializing AlignmentDrawerAPP...");
-                
-                CytoscapeLoaderService loader = new CytoscapeLoaderService(adapter);
-                loader.install_protocol(new LoaderGW());
-                loader.install_protocol(new LoaderSANAAlign());
-                
-                CytoscapeMenuService menu = new CytoscapeMenuService(adapter);
-                menu.install_protocol(new MenuImportAlignmentFile());
-                menu.install_protocol(new MenuComputeAlignedNetwork());
-                
-                System.out.println(getClass() + " - AlignmentDrawerAPP is ready to go...");
+        @Override
+        public String get_menu_name() {
+                return c_MenuName;
         }
+
+        @Override
+        public String get_parent_menu_name() {
+                return c_ParentMenuName;
+        }
+
+        @Override
+        public void action_performed(ActionEvent e) {
+        }
+
+        @Override
+        public void set_menu_service(CytoscapeMenuService service) {
+                m_service = service;
+                m_adapter = m_service.get_adapter();
+        }
+        
 }

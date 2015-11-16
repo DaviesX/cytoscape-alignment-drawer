@@ -17,10 +17,25 @@
  */
 package research;
 
+import java.io.InputStream;
+import java.util.Set;
+import org.cytoscape.io.DataCategory;
+import org.cytoscape.work.Task;
+
 /**
- * Install necessary menu to cytoscape.
+ * Set up a protocol for all cytoscape file loader
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
-public class CytoscapeAlignmentMenuService {
+public interface LoaderProtocol extends Task {
+        public void             set_input_stream(InputStream s);
+//        public void             set_network_factory(CyNetworkFactory fact);
+//        public void             set_network_view_factory(CyNetworkViewFactory fact);
+//        public void             set_table_factory(CyTableFactory fact);
+        public void             set_loader_service(CytoscapeLoaderService service);
         
+        public Set<String>      get_file_extension();
+        public Set<String>      get_file_content_type();
+        public DataCategory     get_file_category();
+        public String           get_file_description();
+        public String           get_file_loader_id();
 }

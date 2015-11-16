@@ -35,7 +35,7 @@ import org.cytoscape.work.TaskMonitor;
  * 
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
-public class SANAAlignLoader implements FileLoaderProtocol, CyTableReader {
+public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
         private final String            c_AlignmentFileExtension = "sanalign";
         private final String            c_AlignmentFileContent = "txt";
         private final DataCategory      c_AlignmentFileCategory = DataCategory.TABLE;
@@ -52,7 +52,7 @@ public class SANAAlignLoader implements FileLoaderProtocol, CyTableReader {
         
         private boolean                 m_is_canceled = false;
 
-        public SANAAlignLoader() {
+        public LoaderSANAAlign() {
                 m_extenstion    = new HashSet<>();
                 m_content       = new HashSet<>();
                 m_extenstion.add(c_AlignmentFileExtension);

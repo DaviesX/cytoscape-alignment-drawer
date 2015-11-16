@@ -30,15 +30,15 @@ import org.cytoscape.work.TaskIterator;
 
 
 /**
- * Direct the InputStream to our FileLoaderProtocol in order to create a network.
+ * Direct the InputStream to our LoaderProtocol in order to create a network.
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 class LoaderInputStreamFactory implements InputStreamTaskFactory {
         private final BasicCyFileFilter         m_filter;
-        private final FileLoaderProtocol        m_protocol;
+        private final LoaderProtocol        m_protocol;
         private final CytoscapeLoaderService    m_service;
 
-        public LoaderInputStreamFactory(FileLoaderProtocol protocol,
+        public LoaderInputStreamFactory(LoaderProtocol protocol,
                                           BasicCyFileFilter filter,
                                           CytoscapeLoaderService service) {
                 m_filter                = filter;
@@ -65,7 +65,7 @@ class LoaderInputStreamFactory implements InputStreamTaskFactory {
 }
 
 /**
- * Create a loader service with given FileLoaderProtocol.
+ * Create a loader service with given LoaderProtocol.
  *
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
@@ -76,18 +76,18 @@ public class CytoscapeLoaderService {
                 m_adapter = adapter;
         }
         
-        public boolean install_protocol(FileLoaderProtocol protocol) {
+        public boolean install_protocol(LoaderProtocol protocol) {
                 System.out.println(getClass() + " - Installing loader protocol: " + protocol + "...");
                 BasicCyFileFilter filter = new BasicCyFileFilter(protocol.get_file_extension(), 
                                                                  protocol.get_file_content_type(),
                                                                  protocol.get_file_description(), 
                                                                  protocol.get_file_category(),
                                                                  m_adapter.getStreamUtil());
-                LoaderInputStreamFactory factory =  new LoaderInputStreamFactory(protocol, filter, this);
+                LoaderInputStreamFactory input_stream =  new LoaderInputStreamFactory(protocol, filter, this);
                 Properties props = new Properties();
                 props.setProperty("readerDescription", protocol.get_file_description());
                 props.setProperty("readerId", protocol.get_file_loader_id());
-                m_adapter.getCyServiceRegistrar().registerService(factory, InputStreamTaskFactory.class, props);
+                m_adapter.getCyServiceRegistrar().registerService(input_stream, InputStreamTaskFactory.class, props);
                 return true;
         }
         

@@ -19,7 +19,6 @@
 package research;
 
 import java.util.ArrayList;
-import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
@@ -50,7 +49,7 @@ public class NetworkAligner {
                 build_attributes(fact.createTable(c_DataTitle, c_PrimaryKeySlot, Long.class, true, true));
         }
         
-        public NetworkAligner(CyTable table, CyNetworkFactory fact) {
+        public NetworkAligner(CyTable table) {
                 build_attributes(table);
         }
         
