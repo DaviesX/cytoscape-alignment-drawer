@@ -49,6 +49,7 @@ public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
         private CyTable                 m_table = null;
         private NetworkAligner          m_aligner = null;
         private InputStream             m_istream = null;
+        private String                  m_data_name_override = "";
         
         private boolean                 m_is_canceled = false;
 
@@ -57,6 +58,10 @@ public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
                 m_content       = new HashSet<>();
                 m_extenstion.add(c_AlignmentFileExtension);
                 m_content.add(c_AlignmentFileContent);
+        }
+        
+        public void override_data_name(String name) {
+                m_data_name_override = name;
         }
 
         @Override
@@ -67,6 +72,7 @@ public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
                 if (m_aligner == null) {
                         throw new Exception("Object NetworkAligner is not constructed yet");
                 }
+                m_aligner.set_data_name(m_data_name_override + "<" + m_istream.toString() + ">");
                 String[] lines = Util.extract_lines_from_stream(m_istream);
                 
                 Pattern regex_pattern = 

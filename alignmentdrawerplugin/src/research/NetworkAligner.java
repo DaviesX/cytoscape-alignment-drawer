@@ -57,6 +57,10 @@ public class NetworkAligner {
                 return m_table;
         }
         
+        void set_data_name(String name) {
+                m_table.setTitle(name);
+        }
+        
         public void add_data_aligned_node_pair(String sig0, String sig1) {
                 CyRow row = m_table.getRow(m_size);
                 row.set(c_PrimaryKeySlot, m_size);

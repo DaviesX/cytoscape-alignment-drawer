@@ -32,11 +32,13 @@ public class AlignmentDrawerApp extends AbstractCySwingApp {
                 System.out.println(getClass() + " - Initializing AlignmentDrawerAPP...");
                 
                 CytoscapeLoaderService loader = new CytoscapeLoaderService(adapter);
-                loader.install_protocol(new LoaderGW());
-                loader.install_protocol(new LoaderSANAAlign());
+                LoaderGW gw_loader = new LoaderGW();
+                LoaderSANAAlign sana_loader = new LoaderSANAAlign();
+                loader.install_protocol(gw_loader);
+                loader.install_protocol(sana_loader);
                 
                 CytoscapeMenuService menu = new CytoscapeMenuService(adapter);
-                menu.install_protocol(new MenuImportAlignmentFile());
+                menu.install_protocol(new MenuImportAlignmentFile(sana_loader));
                 menu.install_protocol(new MenuComputeAlignedNetwork());
                 
                 System.out.println(getClass() + " - AlignmentDrawerAPP is ready to go...");

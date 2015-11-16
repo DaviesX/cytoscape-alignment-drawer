@@ -19,11 +19,14 @@
 package research;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * Utility class
@@ -59,5 +62,15 @@ public class Util {
         
         public static void prompt_critical_error(String title, String prompt) {
                 JOptionPane.showMessageDialog(null,prompt, title, JOptionPane.ERROR_MESSAGE);
+        }
+        
+        public static File run_file_chooser(String file_desc, String extension) {
+                JFileChooser chooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(file_desc, extension);
+                chooser.setFileFilter(filter);
+                int ret_val = chooser.showOpenDialog(null);
+                if(ret_val == JFileChooser.APPROVE_OPTION) {
+                        return chooser.getSelectedFile();
+                } else return null;
         }
 }

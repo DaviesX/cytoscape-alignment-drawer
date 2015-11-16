@@ -18,11 +18,46 @@
 package research;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.cytoscape.app.swing.CySwingAppAdapter;
+import org.cytoscape.model.CyTable;
+import org.cytoscape.work.Task;
+import org.cytoscape.work.TaskIterator;
+import org.cytoscape.work.TaskMonitor;
 
+class LoadAlignmentDataTask implements Task {
+        private final LoaderSANAAlign         m_sana_align;
+        private final CySwingAppAdapter       m_adapter;
+        
+        LoadAlignmentDataTask(LoaderSANAAlign sana_align, CySwingAppAdapter adapter) {
+                m_sana_align = sana_align;
+                m_adapter = adapter;
+        }
+
+        @Override
+        public void run(TaskMonitor tm) throws Exception {
+                m_sana_align.run(tm);
+                CyTable[] tables = m_sana_align.getTables();
+                for (CyTable table : tables) {
+                        m_adapter.getCyTableManager().addTable(table);
+                }
+        }
+
+        @Override
+        public void cancel() {
+                m_sana_align.cancel();
+        }
+
+}
 
 /**
- * Menu Item for importing alignment file
+ * Menu Item for importing alignment file.
+ * Because Cytoscape couldn't load alignment data as table correctly, we will have to do it manually
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class MenuImportAlignmentFile implements MenuProtocol{
@@ -31,6 +66,12 @@ public class MenuImportAlignmentFile implements MenuProtocol{
         
         private CytoscapeMenuService    m_service = null;
         private CySwingAppAdapter       m_adapter = null;
+        
+        private final LoaderSANAAlign         m_sana_align;
+        
+        MenuImportAlignmentFile(LoaderSANAAlign sana_align) {
+                m_sana_align = sana_align;
+        }
 
         @Override
         public String get_menu_name() {
@@ -44,6 +85,26 @@ public class MenuImportAlignmentFile implements MenuProtocol{
 
         @Override
         public void action_performed(ActionEvent e) {
+                // Manually take the task to import the alignment data
+                Set<String> ext = m_sana_align.get_file_extension();
+                File file = Util.run_file_chooser(m_sana_align.get_file_description(), 
+                                                    ext.iterator().next());
+                if (file != null) {
+                        try {
+                                FileInputStream stream = new FileInputStream(file.getPath());
+                                m_sana_align.set_input_stream(stream);
+                                m_sana_align.set_loader_service(new CytoscapeLoaderService(m_adapter));
+                                m_sana_align.override_data_name(file.getName());
+                                // Build a task to load the alignment
+                                LoadAlignmentDataTask task = new LoadAlignmentDataTask(m_sana_align, m_adapter);
+                                m_adapter.getTaskManager().execute(new TaskIterator(task));
+                        } catch (FileNotFoundException ex) {
+                                Util.prompt_critical_error(getClass().toString(), ex.getMessage());
+                                Logger.getLogger(MenuImportAlignmentFile.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                } else {
+                        Util.prompt_critical_error(getClass().toString(), "Path to alignment data is not given");
+                }
         }
 
         @Override
