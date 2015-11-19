@@ -89,17 +89,20 @@ public class NetworkAligner {
                         network0_1.put(sigs.get(0), sigs.get(1));
                         network1_0.put(sigs.get(1), sigs.get(0));
                 }
+                int j = 0;
                 // Add all the data from the first network, and add belongings according to alignment data
                 // Add nodes 0
                 for (AlignmentNetwork.NodeIterator i = network0.NodeIterator(); i.hasNext(); ) {
                         String sig = i.next();
                         CyNode node = aligned.make_node(sig);
+                        j ++;
                         aligned.add_node_belongings(node, network0.get_network());
                         if (network0_1.containsKey(sig)) {
                                 // This node can be aligned
                                 aligned.add_node_belongings(node, network1.get_network());
                         }
                 }
+                System.out.println(getClass() + " -  number of new nodes from g0: " + j);
                 // Add edges 0
                 for (AlignmentNetwork.EdgeIterator i = network0.EdgeIterator(); i.hasNext(); ) {
                         AlignmentNetwork.Edge edge_sig = i.next();
@@ -114,14 +117,17 @@ public class NetworkAligner {
                 }
                 // Add second network but exclude nodes and edges that are already in the first network
                 // Add nodes 1
+                j = 0;
                 for (AlignmentNetwork.NodeIterator i = network1.NodeIterator(); i.hasNext(); ) {
                         String sig = i.next();
                         if (!network1_0.containsKey(sig)) {
                                 // This node is not aligned
+                                j ++;
                                 CyNode node = aligned.make_node(sig);
                                 aligned.add_node_belongings(node, network1.get_network());
                         }
                 }
+                System.out.println(getClass() + " -  number of new nodes from g1: " + j);
                 // Add edges 1
                 for (AlignmentNetwork.EdgeIterator i = network1.EdgeIterator(); i.hasNext(); ) {
                         AlignmentNetwork.Edge edge_sig = i.next();
@@ -140,19 +146,19 @@ public class NetworkAligner {
                         }
                         if (node0 == null) {
                                 if (network1_0.containsKey(edge_sig.m_e0)) {
-                                        throw new Exception("node0 not found from the first network: " + 
+                                        throw new Exception(" - node0 not found from the g0 network: " + 
                                                             edge_sig.m_e0 + "->" + network1_0.get(edge_sig.m_e0));
                                 } else {
-                                        throw new Exception("node0 not found from the current network: " + 
+                                        throw new Exception(" - node0 not found from the g1 network: " + 
                                                             edge_sig.m_e0);
                                 }
                         }
                         if (node1 == null) {
-                                if (network1_0.containsKey(edge_sig.m_e0)) {
-                                        throw new Exception("node1 not found from the first network: " + 
+                                if (network1_0.containsKey(edge_sig.m_e1)) {
+                                        throw new Exception(" - node1 not found from the g0 network: " + 
                                                             edge_sig.m_e1 + "->" + network1_0.get(edge_sig.m_e1));
                                 } else {
-                                        throw new Exception("node1 not found from the current network: " + 
+                                        throw new Exception(" - node1 not found from the g1 network: " + 
                                                             edge_sig.m_e1);
                                 }
                         }

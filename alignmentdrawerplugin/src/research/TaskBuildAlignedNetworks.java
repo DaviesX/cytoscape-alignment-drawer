@@ -18,6 +18,8 @@
 
 package research;
 
+import java.awt.Color;
+import java.util.ArrayList;
 import org.cytoscape.app.swing.CySwingAppAdapter;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyTable;
@@ -59,12 +61,28 @@ public class TaskBuildAlignedNetworks implements Task {
                 aligner.align_networks_from_data(g0, g1, aligned);
                 
                 // Configure the style
-                NetworkConfigurator config = new NetworkConfigurator(aligned);
-                config.configure();
-                CyNetwork final_aligned = config.export_cy_network();
-                // Put new network to the manager
-                m_adapter.getCyNetworkManager().addNetwork(final_aligned);
-                CyNetworkView view = m_adapter.getCyNetworkViewFactory().createNetworkView(final_aligned);
+                // @todo: coloring scheme is hardcoded, maybe better find a way to let user choose the scheme
+                AlignmentDecorated decorated = new AlignmentDecorated(aligned);
+                ArrayList<AlignmentNetwork> aligned_list = new ArrayList<>();
+                ArrayList<AlignmentNetwork> g0_list = new ArrayList<>();
+                ArrayList<AlignmentNetwork> g1_list = new ArrayList<>();
+                aligned_list.add(g0);
+                aligned_list.add(g1);
+                g0_list.add(g0);
+                g1_list.add(g1);
+                decorated.set_node_coloring_constraint(aligned_list, Color.GREEN);
+                decorated.set_node_coloring_constraint(g0_list, Color.RED);
+                decorated.set_node_coloring_constraint(g1_list, Color.BLACK);
+                decorated.set_edge_coloring_constraint(aligned_list, Color.GREEN);
+                decorated.set_edge_coloring_constraint(g0_list, Color.RED);
+                decorated.set_edge_coloring_constraint(g1_list, Color.BLACK);
+                // Apply visual style to the network
+                // Then put new network and its view to the manager
+                CyNetworkView view = 
+                        m_adapter.getCyNetworkViewFactory().createNetworkView(decorated.export_cy_network());
+                decorated.decorate(view);
+                view.updateView();
+                m_adapter.getCyNetworkManager().addNetwork(decorated.export_cy_network());
                 m_adapter.getCyNetworkViewManager().addNetworkView(view);
                 
                 tm.setProgress(1.0);

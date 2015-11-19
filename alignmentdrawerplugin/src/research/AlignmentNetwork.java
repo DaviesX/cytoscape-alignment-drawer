@@ -36,7 +36,7 @@ import org.cytoscape.model.CyTable;
  */
 public class AlignmentNetwork {
         private final String            c_NodeSignatureSlot = "AlignNodeSig";
-        private final String            c_BelongingSlot = "AlignNodeBelonging";
+        private final String            c_BelongingSlot = "AlignBelonging";
         private final String            c_SUIDReferenceSlot = ".SUID";
         private final String            c_EdgeSignature0Slot = "AlignEdgeSig0";
         private final String            c_EdgeSignature1Slot = "AlignEdgeSig1";
@@ -81,11 +81,17 @@ public class AlignmentNetwork {
                 return is_compatible;
         }
         
+        AlignmentNetwork(AlignmentNetwork network) {
+                if (!build_node_attributes(network.get_network())) {
+                        System.out.println(this.getClass() + " - This network is not a compatible alignment network");
+                }
+        }
+        
         /**
          *  This will import the <CyNetwork> and absorb all the network data.
          * @param network network to be imported
          */
-        AlignmentNetwork(CyNetwork network) throws Exception {
+        AlignmentNetwork(CyNetwork network) {
                 if (!build_node_attributes(network)) {
                         System.out.println(this.getClass() + " - This network is not a compatible alignment network");
                 }
@@ -101,6 +107,10 @@ public class AlignmentNetwork {
         
         CyNetwork get_network() {
                 return m_network;
+        }
+        
+        Long get_suid() {
+                return m_network.getSUID();
         }
         
         public CyNode make_node(String signature) {
@@ -143,12 +153,26 @@ public class AlignmentNetwork {
                 return is_object_belong_to(node, network);
         }
         
+        private List<Long> get_object_belongings(CyIdentifiable object) {
+                CyRow attri = m_network.getRow(object);
+                List<Long> belonging_list = attri.getList(c_BelongingSlot, Long.class);
+                return belonging_list;
+        }
+        
+        public List<Long> get_node_belongings(CyNode node) {
+                return get_object_belongings(node);
+        }
+        
+        public List<Long> get_edge_belongings(CyEdge edge) {
+                return get_object_belongings(edge);
+        }
+        
         public void set_node_selected(CyNode node, Boolean is_selected) {
                 CyRow attri = m_network.getRow(node);
                 attri.set(CyNetwork.SELECTED, is_selected);
         }
         
-        public CyNode get_node_from_signature(String signature) throws Exception {
+        public CyNode get_node_from_signature(String signature) {
                 CyTable table = m_network.getDefaultNodeTable();
                 Collection<CyRow> rows = table.getMatchingRows(c_NodeSignatureSlot, signature);
 //                List<CyRow> rows = table.getAllRows();
@@ -163,6 +187,14 @@ public class AlignmentNetwork {
                 CyRow row = rows.iterator().next();
                 Long ref  = row.get(c_SUIDReferenceSlot, Long.class);
                 return m_network.getNode(ref);
+        }
+        
+        public CyNode get_node_from_suid(Long suid) {
+                return m_network.getNode(suid);
+        }
+        
+        public CyEdge get_edge_from_suid(Long suid) {
+                return m_network.getEdge(suid);
         }
         
         public CyEdge make_edge(CyNode node0, CyNode node1) {
@@ -216,6 +248,10 @@ public class AlignmentNetwork {
                 public String next() {
                         return m_row_it.next().get(c_NodeSignatureSlot, String.class);
                 }
+                
+                public Long next2() {
+                        return m_row_it.next().get(c_SUIDReferenceSlot, Long.class);
+                }
 
                 @Override
                 public void remove() {
@@ -255,6 +291,10 @@ public class AlignmentNetwork {
                         String sig0 = edge_attri.get(c_EdgeSignature0Slot, String.class);
                         String sig1 = edge_attri.get(c_EdgeSignature1Slot, String.class);
                         return new Edge(sig0, sig1);
+                }
+                
+                public Long next2() {
+                        return m_row_it.next().get(c_SUIDReferenceSlot, Long.class);
                 }
 
                 @Override

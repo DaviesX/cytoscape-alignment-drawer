@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -72,5 +75,13 @@ public class Util {
                 if(ret_val == JFileChooser.APPROVE_OPTION) {
                         return chooser.getSelectedFile();
                 } else return null;
+        }
+        
+        public static <T> Set<T> list_to_set(List<T> l) {
+                HashSet<T> set = new HashSet<>(l.size());
+                for (T e : l) {
+                        set.add(e);
+                }
+                return set;
         }
 }
