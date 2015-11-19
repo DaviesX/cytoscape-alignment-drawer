@@ -36,14 +36,24 @@ import org.cytoscape.view.presentation.property.values.NodeShape;
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class AlignmentDecorated extends AlignmentNetwork {
-        private final CyNetwork                         m_decorated;
-        private final HashMap<Set<Long>, Color>         m_node_constraints;
-        private final HashMap<Set<Long>, Color>         m_edge_constraints;
-        private final Double                            c_NodeWidth = 12.0;
-        private final Double                            c_NodeHeight = 12.0;
-        private final NodeShape                         c_NodeShape = NodeShapeVisualProperty.ELLIPSE;
+        class ConstraintValue {
+                public Color   color;
+                public Integer transparency;
+                
+                ConstraintValue(Color c, Integer t) {
+                        color           = c;
+                        transparency    = t;
+                }
+        }
         
-        private final String                            m_style_name;
+        private final CyNetwork                                 m_decorated;
+        private final HashMap<Set<Long>, ConstraintValue>       m_node_constraints;
+        private final HashMap<Set<Long>, ConstraintValue>       m_edge_constraints;
+        private final Double                                    c_NodeWidth = 12.0;
+        private final Double                                    c_NodeHeight = 12.0;
+        private final NodeShape                                 c_NodeShape = NodeShapeVisualProperty.ELLIPSE;
+        
+        private final String                                    m_style_name;
         
         AlignmentDecorated(AlignmentNetwork network) {
                 super(network);
@@ -59,15 +69,15 @@ public class AlignmentDecorated extends AlignmentNetwork {
                 for (AlignmentNetwork network : networks) {
                         network_ids.add(network.get_suid());
                 }
-                m_node_constraints.put(network_ids, color);
+                m_node_constraints.put(network_ids, new ConstraintValue(color, 255));
         }
         
-        void set_edge_coloring_constraint(List<AlignmentNetwork> networks, Color color) {
+        void set_edge_coloring_constraint(List<AlignmentNetwork> networks, Color color, Integer transparency) {
                 HashSet<Long> network_ids = new HashSet<>();
                 for (AlignmentNetwork network : networks) {
                         network_ids.add(network.get_suid());
                 }
-                m_edge_constraints.put(network_ids, color);
+                m_edge_constraints.put(network_ids, new ConstraintValue(color, transparency));
         }
         
         void decorate(CyNetworkView view) throws Exception {
@@ -76,11 +86,12 @@ public class AlignmentDecorated extends AlignmentNetwork {
                         String sig              = i.next();
                         CyNode node             = super.get_node_from_signature(sig);
                         Set<Long> belongings    = Util.list_to_set(super.get_node_belongings(node));
-                        Color color             = m_node_constraints.get(belongings);
+                        ConstraintValue value   = m_node_constraints.get(belongings);
                         
                         View<CyNode> node_view  = view.getNodeView(node);
-                        if (color != null) {
-                                node_view.setVisualProperty(BasicVisualLexicon.NODE_FILL_COLOR, color);
+                        if (value != null) {
+                                node_view.setVisualProperty(BasicVisualLexicon.NODE_FILL_COLOR, value.color);
+                                node_view.setVisualProperty(BasicVisualLexicon.NODE_TRANSPARENCY, value.transparency);
                         }
                         node_view.setVisualProperty(BasicVisualLexicon.NODE_WIDTH, c_NodeWidth);
                         node_view.setVisualProperty(BasicVisualLexicon.NODE_HEIGHT, c_NodeHeight);
@@ -93,12 +104,14 @@ public class AlignmentDecorated extends AlignmentNetwork {
                         Long suid               = i.next2();
                         CyEdge edge             = super.get_edge_from_suid(suid);
                         Set<Long> belongings    = Util.list_to_set(super.get_edge_belongings(edge));
-                        Color color             = m_node_constraints.get(belongings);
+                        ConstraintValue value   = m_edge_constraints.get(belongings);
                         
                         View<CyEdge> edge_view  = view.getEdgeView(edge);
-                        if (color != null) {
-                                edge_view.setVisualProperty(BasicVisualLexicon.EDGE_PAINT, color);
-                                edge_view.setVisualProperty(BasicVisualLexicon.EDGE_UNSELECTED_PAINT, color);
+                        if (value != null) {
+                                edge_view.setVisualProperty(BasicVisualLexicon.EDGE_STROKE_UNSELECTED_PAINT, 
+                                                            value.color);
+                                edge_view.setVisualProperty(BasicVisualLexicon.EDGE_TRANSPARENCY, 
+                                                            value.transparency);
                         }
                 }
         }

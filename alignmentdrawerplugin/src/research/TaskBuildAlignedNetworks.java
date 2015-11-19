@@ -73,9 +73,9 @@ public class TaskBuildAlignedNetworks implements Task {
                 decorated.set_node_coloring_constraint(aligned_list, Color.GREEN);
                 decorated.set_node_coloring_constraint(g0_list, Color.RED);
                 decorated.set_node_coloring_constraint(g1_list, Color.BLACK);
-                decorated.set_edge_coloring_constraint(aligned_list, Color.GREEN);
-                decorated.set_edge_coloring_constraint(g0_list, Color.RED);
-                decorated.set_edge_coloring_constraint(g1_list, Color.BLACK);
+                decorated.set_edge_coloring_constraint(aligned_list, Color.GREEN, 255);
+                decorated.set_edge_coloring_constraint(g0_list, Color.RED, 127);
+                decorated.set_edge_coloring_constraint(g1_list, Color.BLACK, 127);
                 // Apply visual style to the network
                 // Then put new network and its view to the manager
                 CyNetworkView view = 
