@@ -30,6 +30,7 @@ import org.cytoscape.view.model.View;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.view.presentation.property.NodeShapeVisualProperty;
 import org.cytoscape.view.presentation.property.values.NodeShape;
+import org.cytoscape.work.TaskMonitor;
 
 /**
  * Put customize styling for the aligned network.
@@ -80,7 +81,11 @@ public class AlignmentDecorated extends AlignmentNetwork {
                 m_edge_constraints.put(network_ids, new ConstraintValue(color, transparency));
         }
         
-        void decorate(CyNetworkView view) throws Exception {
+        void decorate(CyNetworkView view, TaskMonitor tm) {
+                // To keep track of progress
+                int j = 0;
+                int total = super.get_node_count() + super.get_edge_count();
+                
                 // Decorate nodes
                 for (AlignmentNetwork.NodeIterator i = super.NodeIterator(); i.hasNext(); ) {
                         String sig              = i.next();
@@ -97,7 +102,8 @@ public class AlignmentDecorated extends AlignmentNetwork {
                         node_view.setVisualProperty(BasicVisualLexicon.NODE_HEIGHT, c_NodeHeight);
                         node_view.setVisualProperty(BasicVisualLexicon.NODE_BORDER_WIDTH, 0.0);
                         node_view.setVisualProperty(BasicVisualLexicon.NODE_SHAPE, c_NodeShape);
-                        // node_view.setVisualProperty(BasicVisualLexicon.NODE_LABEL, sig);
+                        node_view.setVisualProperty(BasicVisualLexicon.NODE_TOOLTIP, sig);
+                        Util.advance_progress(tm, j, total);
                 }
                 // Decorate edges
                 for (AlignmentNetwork.EdgeIterator i = super.EdgeIterator(); i.hasNext(); ) {
@@ -113,7 +119,12 @@ public class AlignmentDecorated extends AlignmentNetwork {
                                 edge_view.setVisualProperty(BasicVisualLexicon.EDGE_TRANSPARENCY, 
                                                             value.transparency);
                         }
+                        Util.advance_progress(tm, j, total);
                 }
+        }
+        
+        void decorate(CyNetworkView view) {
+                decorate(view, null);
         }
         
         CyNetwork export_cy_network() {

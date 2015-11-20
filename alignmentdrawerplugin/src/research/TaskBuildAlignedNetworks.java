@@ -50,7 +50,9 @@ public class TaskBuildAlignedNetworks implements Task {
         public void run(TaskMonitor tm) throws Exception {
                 System.out.println(getClass() + " - Start aligning networks...");
                 
-                tm.setProgress(0.1);
+                tm.setTitle("Aligning networks...");
+                tm.setStatusMessage("Aligning g0 with g1...");
+                tm.setProgress(0.0);
                 
                 // Align the networks
                 NetworkAligner aligner= new NetworkAligner(m_data);
@@ -61,6 +63,7 @@ public class TaskBuildAlignedNetworks implements Task {
                 aligner.align_networks_from_data(g0, g1, aligned);
                 
                 // Configure the style
+                tm.setStatusMessage("Styling the aligned network...");
                 // @todo: coloring scheme is hardcoded, maybe better find a way to let user choose the scheme
                 AlignmentDecorated decorated = new AlignmentDecorated(aligned);
                 ArrayList<AlignmentNetwork> aligned_list = new ArrayList<>();
@@ -80,13 +83,13 @@ public class TaskBuildAlignedNetworks implements Task {
                 // Then put new network and its view to the manager
                 CyNetworkView view = 
                         m_adapter.getCyNetworkViewFactory().createNetworkView(decorated.export_cy_network());
-                decorated.decorate(view);
+                decorated.decorate(view, tm);
                 view.updateView();
                 m_adapter.getCyNetworkManager().addNetwork(decorated.export_cy_network());
                 m_adapter.getCyNetworkViewManager().addNetworkView(view);
                 
                 tm.setProgress(1.0);
-                
+                tm.setStatusMessage("Finished aligning networks...");
                 System.out.println(getClass() + " - Finished aligning networks...");
         }
 

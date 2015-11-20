@@ -79,6 +79,7 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
         @Override
         public void run(TaskMonitor tm) throws Exception {
                 System.out.println(getClass() + " - Running GW Loader...");
+                tm.setTitle("Loading GW file...");
                 
                 m_is_canceled = false;
 
@@ -99,8 +100,13 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                         throw new Exception("Have not given a network factory");
                 }
                 AlignmentNetwork network_mgr = new AlignmentNetwork(m_network_fact);
+                
+                // keeep track of progress
+                int j = 0;
+                int total = lines.length;
 
                 // load in nodes
+                tm.setStatusMessage("Loading in nodes...");
                 int num_nodes = Integer.decode(lines[c_StartingLine]);
                 ArrayList<CyNode> node_list = new ArrayList<>();
                 String current_line;
@@ -123,9 +129,11 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                         CyNode node = network_mgr.make_node(signature);
                         network_mgr.add_node_belongings(node, null);
                         node_list.add(node);
+                        Util.advance_progress(tm, j, total);
                 }
                 System.out.println(getClass() + " - Finished reading node list...");
                 // load in edges
+                tm.setStatusMessage("Loading in edges...");
                 int num_edges = Integer.decode(lines[i++]);
                 Pattern regex_pattern2 = Pattern.compile("([0-9]*) ([0-9]*) [0-9]* \\|\\{\\}\\|");
                 for (; i < lines.length; i++) {
@@ -148,6 +156,7 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                         CyNode node1 = node_list.get(n1 - 1);
                         CyEdge edge = network_mgr.make_edge(node0, node1);
                         network_mgr.add_edge_belongings(edge, null);
+                        Util.advance_progress(tm, j, total);
                 }
                 System.out.println(getClass() + " - Finished reading edge list...");
                 

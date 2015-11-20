@@ -227,6 +227,14 @@ public class AlignmentNetwork {
         public EdgeIterator EdgeIterator() {
                 return new EdgeIterator(m_network);
         }
+
+        int get_node_count() {
+               return m_network.getNodeCount();
+        }
+        
+        int get_edge_count() {
+                return m_network.getEdgeCount();
+        }
         
         public class NodeIterator implements Iterator<String> {
                 private final List<CyRow>          m_rows;

@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.cytoscape.work.TaskMonitor;
 
 /**
  * Utility class
@@ -83,5 +84,12 @@ public class Util {
                         set.add(e);
                 }
                 return set;
+        }
+        
+        public static void advance_progress(TaskMonitor tm, Integer current, Integer total) {
+                if (tm != null) {
+                        tm.setProgress((double) current/total);
+                }
+                current ++;
         }
 }

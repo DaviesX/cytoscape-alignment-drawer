@@ -68,12 +68,17 @@ public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
         public void run(TaskMonitor tm) throws Exception {
                 m_is_canceled = false;
                 System.out.println(getClass() + " - Running sana alignment Loader...");
+                tm.setTitle("Loading in sana alignment data...");
                 
                 if (m_aligner == null) {
                         throw new Exception("Object NetworkAligner is not constructed yet");
                 }
                 m_aligner.set_data_name(m_data_name_override + "<" + m_istream.toString() + ">");
                 String[] lines = Util.extract_lines_from_stream(m_istream);
+                
+                // keep track of progress
+                int j = 0;
+                int total = lines.length;
                 
                 Pattern regex_pattern = 
                         Pattern.compile("([[a-zA-Z][0-9][-][@][,][\"]]*) ([[a-zA-Z][0-9][-][@][,][\"]]*)");
@@ -90,6 +95,7 @@ public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
                         String sn0 = matcher.group(1);
                         String sn1 = matcher.group(2);
                         m_aligner.add_data_aligned_node_pair(sn0, sn1);
+                        Util.advance_progress(tm, j, total);
                 }
                 
                 m_table = m_aligner.get_data();
