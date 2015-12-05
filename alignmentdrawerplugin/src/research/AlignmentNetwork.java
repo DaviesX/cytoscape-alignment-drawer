@@ -174,6 +174,11 @@ public class AlignmentNetwork {
                 attri.set(CyNetwork.SELECTED, is_selected);
         }
         
+        public void mutate_node_signature(CyNode node, String new_sig) {
+                CyRow attri = m_network.getRow(node);
+                attri.set(c_NodeSignatureSlot, new_sig);
+        }
+        
         public CyNode get_node_from_signature(String signature) {
                 CyTable table = m_network.getDefaultNodeTable();
                 Collection<CyRow> rows = table.getMatchingRows(c_NodeSignatureSlot, signature);

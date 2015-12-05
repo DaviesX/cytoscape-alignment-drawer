@@ -149,6 +149,12 @@ public class NetworkAligner {
                                 // This node is not aligned
                                 CyNode node = aligned.make_node(sig + net1_sig_suffix);
                                 aligned.add_node_belongings(node, network1.get_network());
+                        } else {
+                                // This node is aligned but we shall change the signature
+                                // to reflect the relation of the aligned node
+                                String translated = network1_0.get(sig);
+                                CyNode node = aligned.get_node_from_signature(translated);
+                                aligned.mutate_node_signature(node, translated + "_" + sig);
                         }
                         Util.advance_progress(tm, j, total);
                 }
