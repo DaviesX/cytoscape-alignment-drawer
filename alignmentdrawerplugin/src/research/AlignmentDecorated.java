@@ -56,6 +56,8 @@ public class AlignmentDecorated extends AlignmentNetwork {
         
         private final String                                    m_style_name;
         
+        static public final String      c_DecoratedBindableId = "AlignmentDecoratedBindable";
+        
         AlignmentDecorated(AlignmentNetwork network) {
                 super(network);
                 m_decorated             = super.get_network();
@@ -64,24 +66,63 @@ public class AlignmentDecorated extends AlignmentNetwork {
                 m_style_name            = super.get_suggested_name() + "_visual_style";
         }
         
-        
-        void set_node_coloring_constraint(List<AlignmentNetwork> networks, Color color) {
+        private HashSet<Long> make_network_id(List<AlignmentNetwork> networks) {
                 HashSet<Long> network_ids = new HashSet<>();
                 for (AlignmentNetwork network : networks) {
                         network_ids.add(network.get_suid());
                 }
-                m_node_constraints.put(network_ids, new ConstraintValue(color, 255));
+                return network_ids;
         }
         
-        void set_edge_coloring_constraint(List<AlignmentNetwork> networks, Color color, Integer transparency) {
-                HashSet<Long> network_ids = new HashSet<>();
-                for (AlignmentNetwork network : networks) {
-                        network_ids.add(network.get_suid());
+        public void set_node_decorate_constraint(List<AlignmentNetwork> networks, Color color, Integer transparency) {
+                m_node_constraints.put(make_network_id(networks), new ConstraintValue(color, transparency));
+        }
+        
+        public void set_edge_decorate_constraint(List<AlignmentNetwork> networks, Color color, Integer transparency) {
+                m_edge_constraints.put(make_network_id(networks), new ConstraintValue(color, transparency));
+        }
+        
+        public void set_node_transparency_constraints(List<AlignmentNetwork> networks, Integer transparency) {
+                HashSet<Long> id = make_network_id(networks);
+                ConstraintValue value = m_node_constraints.get(id);
+                if (value != null) {
+                        value.transparency = transparency;
+                } else {
+                        m_node_constraints.put(id, new ConstraintValue(Color.BLACK, transparency));
                 }
-                m_edge_constraints.put(network_ids, new ConstraintValue(color, transparency));
         }
         
-        void decorate(CyNetworkView view, TaskMonitor tm) {
+        public void set_node_coloring_constraints(List<AlignmentNetwork> networks, Color color) {
+                HashSet<Long> id = make_network_id(networks);
+                ConstraintValue value = m_node_constraints.get(id);
+                if (value != null) {
+                        value.color = color;
+                } else {
+                        m_node_constraints.put(id, new ConstraintValue(color, 255));
+                }
+        }
+        
+        public void set_edge_coloring_constraint(List<AlignmentNetwork> networks, Color color) {
+                HashSet<Long> id = make_network_id(networks);
+                ConstraintValue value = m_edge_constraints.get(id);
+                if (value != null) {
+                        value.color = color;
+                } else {
+                        m_edge_constraints.put(id, new ConstraintValue(color, 255));
+                }
+        }
+        
+        public void set_edge_transparency_constraint(List<AlignmentNetwork> networks, Integer transparency) {
+                HashSet<Long> id = make_network_id(networks);
+                ConstraintValue value = m_edge_constraints.get(id);
+                if (value != null) {
+                        value.transparency = transparency;
+                } else {
+                        m_edge_constraints.put(id, new ConstraintValue(Color.BLACK, transparency));
+                }
+        }
+        
+        public void decorate(CyNetworkView view, TaskMonitor tm) {
                 // To keep track of progress
                 int j = 0;
                 int total = super.get_node_count() + super.get_edge_count();
@@ -123,11 +164,11 @@ public class AlignmentDecorated extends AlignmentNetwork {
                 }
         }
         
-        void decorate(CyNetworkView view) {
+        public void decorate(CyNetworkView view) {
                 decorate(view, null);
         }
         
-        CyNetwork export_cy_network() {
+        public CyNetwork export_cy_network() {
                 return m_decorated;
         }
 }

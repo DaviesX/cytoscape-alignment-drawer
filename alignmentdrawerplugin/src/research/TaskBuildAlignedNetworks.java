@@ -73,12 +73,12 @@ public class TaskBuildAlignedNetworks implements Task {
                 aligned_list.add(g1);
                 g0_list.add(g0);
                 g1_list.add(g1);
-                decorated.set_node_coloring_constraint(aligned_list, Color.GREEN);
-                decorated.set_node_coloring_constraint(g0_list, Color.RED);
-                decorated.set_node_coloring_constraint(g1_list, Color.BLACK);
-                decorated.set_edge_coloring_constraint(aligned_list, Color.GREEN, 255);
-                decorated.set_edge_coloring_constraint(g0_list, Color.RED, 127);
-                decorated.set_edge_coloring_constraint(g1_list, Color.BLACK, 127);
+                decorated.set_node_decorate_constraint(aligned_list, Color.GREEN, 255);
+                decorated.set_node_decorate_constraint(g0_list, Color.RED, 127);
+                decorated.set_node_decorate_constraint(g1_list, Color.BLACK, 127);
+                decorated.set_edge_decorate_constraint(aligned_list, Color.GREEN, 255);
+                decorated.set_edge_decorate_constraint(g0_list, Color.RED, 127);
+                decorated.set_edge_decorate_constraint(g1_list, Color.BLACK, 127);
                 // Apply visual style to the network
                 // Then put new network and its view to the manager
                 CyNetworkView view = 
@@ -87,6 +87,13 @@ public class TaskBuildAlignedNetworks implements Task {
                 view.updateView();
                 m_adapter.getCyNetworkManager().addNetwork(decorated.export_cy_network());
                 m_adapter.getCyNetworkViewManager().addNetworkView(view);
+                // Put the aligned network to local database
+                NetworkDatabase db = NetworkDatabaseSingleton.get_instance();
+                db.add_network_bindings(aligned, new Bindable(aligned, AlignmentNetwork.c_AlignmentBindableId));
+                db.add_network_bindings(aligned, new Bindable(decorated, AlignmentDecorated.c_DecoratedBindableId));
+                db.add_network_bindings(aligned, new Bindable(view, CyNetworkView.class.getName()));
+                db.add_network_bindings(aligned, new Bindable(g0, AlignmentNetwork.c_AlignmentBindableId + "_g0"));
+                db.add_network_bindings(aligned, new Bindable(g1, AlignmentNetwork.c_AlignmentBindableId + "_g1"));
                 
                 tm.setProgress(1.0);
                 tm.setStatusMessage("Finished aligning networks...");

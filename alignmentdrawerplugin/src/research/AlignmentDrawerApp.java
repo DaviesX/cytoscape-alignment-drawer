@@ -40,6 +40,7 @@ public class AlignmentDrawerApp extends AbstractCySwingApp {
                 CytoscapeMenuService menu = new CytoscapeMenuService(adapter);
                 menu.install_protocol(new MenuImportAlignmentFile(sana_loader));
                 menu.install_protocol(new MenuComputeAlignedNetwork());
+                menu.install_protocol(new MenuShowAlignmentSwitch());
                 
                 System.out.println(getClass() + " - AlignmentDrawerAPP is ready to go...");
         }

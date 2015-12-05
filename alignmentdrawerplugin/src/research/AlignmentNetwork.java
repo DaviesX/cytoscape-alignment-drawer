@@ -42,6 +42,8 @@ public class AlignmentNetwork {
         private final String            c_EdgeSignature1Slot = "AlignEdgeSig1";
         private CyNetwork               m_network = null;
         
+        static public final String      c_AlignmentBindableId = "AlignmentNetworkBindable";
+        
         private boolean build_node_attributes(CyNetwork network) {
                 boolean is_compatible = true;
                 
@@ -207,7 +209,7 @@ public class AlignmentNetwork {
                 edge_attri.set(c_EdgeSignature1Slot, sig1);
                 return edge;
         }
-        
+                
         public int add_edge_belongings(CyEdge edge, CyNetwork network) {
                 return add_object_belongings(edge, network);
         }
