@@ -35,7 +35,7 @@ import org.cytoscape.work.TaskMonitor;
  */
 public class MenuShowAlignmentSwitch implements MenuProtocol {
         private final String            c_MenuName = "Show/Hide Computed Alignment";
-        private final String            c_ParentMenuName = "File.Import";
+        private final String            c_ParentMenuName = "Tools";
         private CytoscapeMenuService    m_service;
         private boolean                 m_is_showing = true;
         
