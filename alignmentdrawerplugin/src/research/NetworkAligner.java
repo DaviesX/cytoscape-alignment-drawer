@@ -154,7 +154,8 @@ public class NetworkAligner {
                                 // to reflect the relation of the aligned node
                                 String translated = network1_0.get(sig);
                                 CyNode node = aligned.get_node_from_signature(translated);
-                                aligned.mutate_node_signature(node, translated + "_" + sig);
+                                aligned.mutate_node_signature(node, 
+                                        translated + net0_sig_suffix + "_" + sig + net1_sig_suffix);
                         }
                         Util.advance_progress(tm, j, total);
                 }
@@ -164,13 +165,15 @@ public class NetworkAligner {
                         CyNode node0, node1;
                         if (network1_0.containsKey(edge_sig.m_e0)) {
                                 String translated = network1_0.get(edge_sig.m_e0);
-                                node0 = aligned.get_node_from_signature(translated);
+                                node0 = aligned.get_node_from_signature(translated + net0_sig_suffix + "_" + 
+                                        edge_sig.m_e0 + net1_sig_suffix);
                         } else {
                                 node0 = aligned.get_node_from_signature(edge_sig.m_e0 + net1_sig_suffix);
                         }
                         if (network1_0.containsKey(edge_sig.m_e1)) {
                                 String translated = network1_0.get(edge_sig.m_e1);
-                                node1 = aligned.get_node_from_signature(translated);
+                                node1 = aligned.get_node_from_signature(translated + net0_sig_suffix + "_" + 
+                                        edge_sig.m_e1 + net1_sig_suffix);
                         } else {
                                 node1 = aligned.get_node_from_signature(edge_sig.m_e1 + net1_sig_suffix);
                         }

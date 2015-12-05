@@ -17,6 +17,7 @@
  */
 package research;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Set;
 import org.cytoscape.app.swing.CySwingAppAdapter;
@@ -41,6 +42,7 @@ public class TaskSwitchAlignmentView implements Task {
 
         @Override
         public void run(TaskMonitor tm) throws Exception {
+                System.out.println(getClass() + " - Begin switching alignment view...");
                 CyNetworkManager mgr = m_adapter.getCyNetworkManager();
                 Set<CyNetwork> networks = mgr.getNetworkSet();
                 NetworkDatabase db = NetworkDatabaseSingleton.get_instance();
@@ -48,9 +50,12 @@ public class TaskSwitchAlignmentView implements Task {
                         AlignmentNetwork align_net = new AlignmentNetwork(network);
                         if (!db.has_network(align_net)) {
                                 // Doesn't have record of this network, skip
+                                System.out.println(getClass() + " - doesn't have record of: " + network.getSUID());
                                 continue;
                         }
                         // Obtain data from database
+                        System.out.println(getClass() + " - network: " + network.getSUID() + 
+                                           " is in the database, will modify this network");
                         Bindable b_decorated = db.get_network_binding(align_net, 
                                         AlignmentDecorated.c_DecoratedBindableId);
                         Bindable b_g0_network = db.get_network_binding(align_net, 
@@ -72,13 +77,18 @@ public class TaskSwitchAlignmentView implements Task {
                                 // Hide unaligned nodes/edges
                                 decorator.set_node_transparency_constraints(g0_list, 0);
                                 decorator.set_node_transparency_constraints(g1_list, 0);
+                                decorator.set_edge_transparency_constraint(g0_list, 0);
+                                decorator.set_edge_transparency_constraint(g1_list, 0);
                         } else {
                                 // Show everything
                                 decorator.set_node_transparency_constraints(g0_list, 127);
                                 decorator.set_node_transparency_constraints(g1_list, 127);
+                                decorator.set_edge_transparency_constraint(g0_list, 127);
+                                decorator.set_edge_transparency_constraint(g1_list, 127);
                         }
                         decorator.decorate(view, tm);
                         view.updateView();
+                        System.out.println(getClass() + " - Finished switching alignment view...");
                 }
         }
 

@@ -18,15 +18,9 @@
 package research;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Set;
 import org.cytoscape.app.swing.CySwingAppAdapter;
-import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNetworkManager;
-import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
-import org.cytoscape.work.TaskMonitor;
 
 
 /**
@@ -53,8 +47,10 @@ public class MenuShowAlignmentSwitch implements MenuProtocol {
         public void action_performed(ActionEvent e) {
                 CySwingAppAdapter adapter = m_service.get_adapter();
                 if (m_is_showing) {
+                        System.out.println(getClass() + " - Set to hide not-aligned network");
                         m_is_showing = false;
                 } else {
+                        System.out.println(getClass() + " - Set to show everything");
                         m_is_showing = true;
                 }
                 Task task = new TaskSwitchAlignmentView(adapter, m_is_showing);
