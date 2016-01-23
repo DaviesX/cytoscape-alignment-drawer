@@ -25,18 +25,20 @@ import java.util.logging.Logger;
 
 /**
  * Test LoaderGW with an actual file
+ *
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class TestGWLoader implements Test {
-        LoaderGW        m_gw_loader;
-        InputStream     m_is;
-        String          m_failure_reason = "";
-        
+
+        LoaderGW m_gw_loader;
+        InputStream m_is;
+        String m_failure_reason = "";
+
         public TestGWLoader(String test_file) throws FileNotFoundException {
                 m_is = new FileInputStream(test_file);
                 m_gw_loader = new LoaderGW();
         }
-        
+
         @Override
         public boolean test() {
                 try {

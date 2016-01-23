@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2015 Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
+ * Copyright (C) 2016 Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,15 +18,10 @@
 package research;
 
 /**
- * This gives a general framework for unit testing
+ * Representing a subnetwork.
  *
- * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
+ * @author davis
  */
-public interface Test {
+public class SubnetworkDescriptor {
 
-        public boolean test();
-
-        public String name();
-
-        public String failure_reason();
 }

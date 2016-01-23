@@ -15,7 +15,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 package alignmentplugintest;
 
 import java.io.FileNotFoundException;
@@ -34,12 +33,12 @@ public class Alignmentplugintest {
         public static void main(String[] args) throws FileNotFoundException, Exception {
                 ArrayList<research.Test> test_list = new ArrayList<>();
                 test_list.add(new research.TestGWLoader("yeast.gw"));
-                
+
                 for (research.Test test : test_list) {
                         if (!test.test()) {
                                 System.out.println("Test case: " + test.name() + " doesn't pass, with reasons: " + test.failure_reason());
                         }
                 }
         }
-        
+
 }

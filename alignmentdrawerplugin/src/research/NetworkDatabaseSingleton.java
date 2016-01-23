@@ -21,13 +21,16 @@ import org.cytoscape.app.swing.CySwingAppAdapter;
 
 /**
  * Singleton to create a network database
+ *
  * @author davis
  */
 public class NetworkDatabaseSingleton {
-        private static NetworkDatabase          m_database = null;
-        
-        private NetworkDatabaseSingleton() {}
-        
+
+        private static NetworkDatabase m_database = null;
+
+        private NetworkDatabaseSingleton() {
+        }
+
         public static NetworkDatabase get_instance() throws Exception {
                 if (m_database == null) {
                         m_database = new NetworkDatabase();

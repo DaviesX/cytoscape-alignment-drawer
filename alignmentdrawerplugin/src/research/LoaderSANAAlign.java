@@ -15,7 +15,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 package research;
 
 import java.io.InputStream;
@@ -29,37 +28,37 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.work.TaskMonitor;
 
-
 /**
  * Actual implementation of a SANA alignment file loader.
- * 
+ *
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
-        private final String            c_AlignmentFileExtension = "sanalign";
-        private final String            c_AlignmentFileContent = "txt";
-        private final DataCategory      c_AlignmentFileCategory = DataCategory.TABLE;
-        private final String            c_AlignmentFileDesc = "SANA Network Alignment File";
-        private final String            c_AlignmentFileLoaderID = "SANAAlignmentLoader";
 
-        private HashSet<String>   m_extenstion = null;
-        private HashSet<String>   m_content = null;
-        
-        private CyTableFactory          m_table_fact = null;
-        private CyTable                 m_table = null;
-        private NetworkAligner          m_aligner = null;
-        private InputStream             m_istream = null;
-        private String                  m_data_name_override = "";
-        
-        private boolean                 m_is_canceled = false;
+        private final String c_AlignmentFileExtension = "sanalign";
+        private final String c_AlignmentFileContent = "txt";
+        private final DataCategory c_AlignmentFileCategory = DataCategory.TABLE;
+        private final String c_AlignmentFileDesc = "SANA Network Alignment File";
+        private final String c_AlignmentFileLoaderID = "SANAAlignmentLoader";
+
+        private HashSet<String> m_extenstion = null;
+        private HashSet<String> m_content = null;
+
+        private CyTableFactory m_table_fact = null;
+        private CyTable m_table = null;
+        private NetworkAligner m_aligner = null;
+        private InputStream m_istream = null;
+        private String m_data_name_override = "";
+
+        private boolean m_is_canceled = false;
 
         public LoaderSANAAlign() {
-                m_extenstion    = new HashSet<>();
-                m_content       = new HashSet<>();
+                m_extenstion = new HashSet<>();
+                m_content = new HashSet<>();
                 m_extenstion.add(c_AlignmentFileExtension);
                 m_content.add(c_AlignmentFileContent);
         }
-        
+
         public void override_data_name(String name) {
                 m_data_name_override = name;
         }
@@ -69,35 +68,35 @@ public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
                 m_is_canceled = false;
                 System.out.println(getClass() + " - Running sana alignment Loader...");
                 tm.setTitle("Loading in sana alignment data...");
-                
+
                 if (m_aligner == null) {
                         throw new Exception("Object NetworkAligner is not constructed yet");
                 }
                 m_aligner.set_data_name(m_data_name_override + "<" + m_istream.toString() + ">");
                 String[] lines = Util.extract_lines_from_stream(m_istream);
-                
+
                 // keep track of progress
                 int j = 0;
                 int total = lines.length;
-                
-                Pattern regex_pattern = 
-                        Pattern.compile("([[a-zA-Z][0-9][-][@][,][\"]]*) ([[a-zA-Z][0-9][-][@][,][\"]]*)");
+
+                Pattern regex_pattern
+                        = Pattern.compile("([[a-zA-Z][0-9][-][@][,][\"]]*) ([[a-zA-Z][0-9][-][@][,][\"]]*)");
                 for (String line : lines) {
                         if (m_is_canceled) {
                                 System.out.println(getClass() + " - Task is canceled.");
-                                return ;
+                                return;
                         }
                         Matcher matcher = regex_pattern.matcher(line);
                         if (!matcher.matches()) {
                                 // The alignment file is invalid
-                                throw new Exception("The alignement file contains illegal formatted line: " +  line);
+                                throw new Exception("The alignement file contains illegal formatted line: " + line);
                         }
                         String sn0 = matcher.group(1);
                         String sn1 = matcher.group(2);
                         m_aligner.add_data_aligned_node_pair(sn0, sn1);
                         Util.advance_progress(tm, j, total);
                 }
-                
+
                 m_table = m_aligner.get_data();
                 System.out.println(getClass() + " - Finished reading sana alignment data...");
                 System.out.println(getClass() + " - Everything has been loaded.");
@@ -107,12 +106,12 @@ public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
         public void cancel() {
                 m_is_canceled = true;
         }
-        
+
         @Override
         public CyTable[] getTables() {
                 return new CyTable[]{m_table};
         }
-        
+
         @Override
         public Set<String> get_file_extension() {
                 return m_extenstion;
@@ -137,7 +136,7 @@ public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
         public String get_file_loader_id() {
                 return c_AlignmentFileLoaderID;
         }
-        
+
         @Override
         public void set_input_stream(InputStream s) {
                 m_istream = s;
@@ -150,5 +149,4 @@ public class LoaderSANAAlign implements LoaderProtocol, CyTableReader {
                 m_table = m_aligner.get_data();
         }
 
-        
 }

@@ -24,8 +24,12 @@ import java.awt.event.ActionEvent;
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public interface MenuProtocol {
-        String  get_menu_name();
-        String  get_parent_menu_name();
-        void    action_performed(ActionEvent e);
-        void    set_menu_service(CytoscapeMenuService service);
+
+        String get_menu_name();
+
+        String get_parent_menu_name();
+
+        void action_performed(ActionEvent e);
+
+        void set_menu_service(CytoscapeMenuService service);
 }

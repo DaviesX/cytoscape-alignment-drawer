@@ -23,10 +23,10 @@ import org.cytoscape.app.swing.CySwingAppAdapter;
 import org.cytoscape.application.swing.AbstractCyAction;
 import org.cytoscape.application.swing.CyAction;
 
-
 class MenuItemAction extends AbstractCyAction {
-        private MenuProtocol            m_protocol = null;
-        private CytoscapeMenuService    m_service = null;
+
+        private MenuProtocol m_protocol = null;
+        private CytoscapeMenuService m_service = null;
 
         public MenuItemAction(MenuProtocol protocol, CytoscapeMenuService service) {
                 super(protocol.get_menu_name());
@@ -44,15 +44,17 @@ class MenuItemAction extends AbstractCyAction {
 
 /**
  * To install menus to cytoscape.
+ *
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class CytoscapeMenuService {
-        private CySwingAppAdapter       m_adapter = null;
-        
+
+        private CySwingAppAdapter m_adapter = null;
+
         CytoscapeMenuService(CySwingAppAdapter adapter) {
                 m_adapter = adapter;
         }
-        
+
         public boolean install_protocol(MenuProtocol protocol) {
                 System.out.println(getClass() + " - Installing menu protocol: " + protocol + "...");
                 MenuItemAction action = new MenuItemAction(protocol, this);
@@ -60,7 +62,7 @@ public class CytoscapeMenuService {
                 m_adapter.getCyServiceRegistrar().registerService(action, CyAction.class, props);
                 return true;
         }
-        
+
         CySwingAppAdapter get_adapter() {
                 return m_adapter;
         }

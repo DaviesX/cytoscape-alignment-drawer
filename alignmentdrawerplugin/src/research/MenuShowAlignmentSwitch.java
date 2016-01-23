@@ -22,17 +22,18 @@ import org.cytoscape.app.swing.CySwingAppAdapter;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskIterator;
 
-
 /**
  * Show/hide alignment menu
+ *
  * @author davis
  */
 public class MenuShowAlignmentSwitch implements MenuProtocol {
-        private final String            c_MenuName = "Show/Hide Computed Alignment";
-        private final String            c_ParentMenuName = "Tools";
-        private CytoscapeMenuService    m_service;
-        private boolean                 m_is_showing = true;
-        
+
+        private final String c_MenuName = "Show/Hide Computed Alignment";
+        private final String c_ParentMenuName = "Tools";
+        private CytoscapeMenuService m_service;
+        private boolean m_is_showing = true;
+
         @Override
         public String get_menu_name() {
                 return c_MenuName;
@@ -61,5 +62,5 @@ public class MenuShowAlignmentSwitch implements MenuProtocol {
         public void set_menu_service(CytoscapeMenuService service) {
                 m_service = service;
         }
-    
+
 }

@@ -15,7 +15,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 package research;
 
 import java.awt.Color;
@@ -29,17 +28,18 @@ import org.cytoscape.work.TaskMonitor;
 
 /**
  * A task to compute and build an aligned network.
+ *
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class TaskBuildAlignedNetworks implements Task {
-        
-        private final CySwingAppAdapter m_adapter; 
-        private final CyTable           m_data;
-        private final CyNetwork         m_g0;
-        private final CyNetwork         m_g1;
-        
-        TaskBuildAlignedNetworks(CyTable align_data, CyNetwork g0, CyNetwork g1, 
-                                    CySwingAppAdapter adapter) {
+
+        private final CySwingAppAdapter m_adapter;
+        private final CyTable m_data;
+        private final CyNetwork m_g0;
+        private final CyNetwork m_g1;
+
+        TaskBuildAlignedNetworks(CyTable align_data, CyNetwork g0, CyNetwork g1,
+                                 CySwingAppAdapter adapter) {
                 m_adapter = adapter;
                 m_data = align_data;
                 m_g0 = g0;
@@ -49,23 +49,23 @@ public class TaskBuildAlignedNetworks implements Task {
         @Override
         public void run(TaskMonitor tm) throws Exception {
                 System.out.println(getClass() + " - Start aligning networks...");
-                
+
                 tm.setTitle("Aligning networks...");
                 tm.setStatusMessage("Aligning g0 with g1...");
                 tm.setProgress(0.0);
-                
+
                 // Align the networks
-                NetworkAligner aligner= new NetworkAligner(m_data);
+                NetworkAligner aligner = new NetworkAligner(m_data);
                 AlignmentNetwork g0 = new AlignmentNetwork(m_g0);
                 AlignmentNetwork g1 = new AlignmentNetwork(m_g1);
                 CyNetwork cyaligned = m_adapter.getCyNetworkFactory().createNetwork();
                 AlignmentNetwork aligned = new AlignmentNetwork(cyaligned);
                 aligner.align_networks_from_data(g0, g1, aligned);
-                
+
                 // Configure the style
                 tm.setStatusMessage("Styling the aligned network...");
                 // @todo: coloring scheme is hardcoded, maybe better find a way to let user choose the scheme
-                AlignmentDecorated decorated = new AlignmentDecorated(aligned);
+                AlignmentDecorator decorated = new AlignmentDecorator(aligned);
                 ArrayList<AlignmentNetwork> aligned_list = new ArrayList<>();
                 ArrayList<AlignmentNetwork> g0_list = new ArrayList<>();
                 ArrayList<AlignmentNetwork> g1_list = new ArrayList<>();
@@ -73,16 +73,16 @@ public class TaskBuildAlignedNetworks implements Task {
                 aligned_list.add(g1);
                 g0_list.add(g0);
                 g1_list.add(g1);
-                decorated.set_node_decorate_constraint(aligned_list, Color.GREEN, 255);
-                decorated.set_node_decorate_constraint(g0_list, Color.RED, 127);
-                decorated.set_node_decorate_constraint(g1_list, Color.BLACK, 127);
-                decorated.set_edge_decorate_constraint(aligned_list, Color.GREEN, 255);
-                decorated.set_edge_decorate_constraint(g0_list, Color.RED, 127);
-                decorated.set_edge_decorate_constraint(g1_list, Color.BLACK, 127);
+                decorated.set_network_node_constraint(aligned_list, Color.GREEN, 255);
+                decorated.set_network_node_constraint(g0_list, Color.RED, 127);
+                decorated.set_network_node_constraint(g1_list, Color.BLACK, 127);
+                decorated.set_network_edge_constraint(aligned_list, Color.GREEN, 255);
+                decorated.set_network_edge_constraint(g0_list, Color.RED, 127);
+                decorated.set_network_edge_constraint(g1_list, Color.BLACK, 127);
                 // Apply visual style to the network
                 // Then put new network and its view to the manager
-                CyNetworkView view = 
-                        m_adapter.getCyNetworkViewFactory().createNetworkView(decorated.export_cy_network());
+                CyNetworkView view
+                              = m_adapter.getCyNetworkViewFactory().createNetworkView(decorated.export_cy_network());
                 decorated.decorate(view, tm);
                 view.updateView();
                 m_adapter.getCyNetworkManager().addNetwork(decorated.export_cy_network());
@@ -90,11 +90,11 @@ public class TaskBuildAlignedNetworks implements Task {
                 // Put the aligned network to local database
                 NetworkDatabase db = NetworkDatabaseSingleton.get_instance();
                 db.add_network_bindings(aligned, new Bindable(aligned, AlignmentNetwork.c_AlignmentBindableId));
-                db.add_network_bindings(aligned, new Bindable(decorated, AlignmentDecorated.c_DecoratedBindableId));
+                db.add_network_bindings(aligned, new Bindable(decorated, AlignmentDecorator.c_DecoratedBindableId));
                 db.add_network_bindings(aligned, new Bindable(view, CyNetworkView.class.getName()));
                 db.add_network_bindings(aligned, new Bindable(g0, AlignmentNetwork.c_AlignmentBindableId + "_g0"));
                 db.add_network_bindings(aligned, new Bindable(g1, AlignmentNetwork.c_AlignmentBindableId + "_g1"));
-                
+
                 tm.setProgress(1.0);
                 tm.setStatusMessage("Finished aligning networks...");
                 System.out.println(getClass() + " - Finished aligning networks...");

@@ -19,23 +19,24 @@ package research;
 
 /**
  * Base class that describle something binded to another object
+ *
  * @author davis
  */
 public class Bindable {
-        
-        private final Object    m_to_bind;
-        private final String    m_id;
+
+        private final Object m_to_bind;
+        private final String m_id;
 
         Bindable(Object to_bind) {
                 m_to_bind = to_bind;
                 m_id = "";
         }
-        
+
         Bindable(Object to_bind, String id) {
                 m_to_bind = to_bind;
                 m_id = id;
         }
-        
+
         String get_id() {
                 return m_id;
         }

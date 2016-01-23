@@ -28,22 +28,23 @@ import org.cytoscape.model.CyTableFactory;
 import org.cytoscape.view.model.CyNetworkViewFactory;
 import org.cytoscape.work.TaskIterator;
 
-
 /**
  * Direct the InputStream to our LoaderProtocol in order to create a network.
+ *
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 class LoaderInputStreamFactory implements InputStreamTaskFactory {
-        private final BasicCyFileFilter         m_filter;
-        private final LoaderProtocol        m_protocol;
-        private final CytoscapeLoaderService    m_service;
+
+        private final BasicCyFileFilter m_filter;
+        private final LoaderProtocol m_protocol;
+        private final CytoscapeLoaderService m_service;
 
         public LoaderInputStreamFactory(LoaderProtocol protocol,
-                                          BasicCyFileFilter filter,
-                                          CytoscapeLoaderService service) {
-                m_filter                = filter;
-                m_service               = service;
-                m_protocol              = protocol;
+                                        BasicCyFileFilter filter,
+                                        CytoscapeLoaderService service) {
+                m_filter = filter;
+                m_service = service;
+                m_protocol = protocol;
         }
 
         @Override
@@ -70,35 +71,36 @@ class LoaderInputStreamFactory implements InputStreamTaskFactory {
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class CytoscapeLoaderService {
+
         private final CySwingAppAdapter m_adapter;
-        
+
         public CytoscapeLoaderService(CySwingAppAdapter adapter) {
                 m_adapter = adapter;
         }
-        
+
         public boolean install_protocol(LoaderProtocol protocol) {
                 System.out.println(getClass() + " - Installing loader protocol: " + protocol + "...");
-                BasicCyFileFilter filter = new BasicCyFileFilter(protocol.get_file_extension(), 
+                BasicCyFileFilter filter = new BasicCyFileFilter(protocol.get_file_extension(),
                                                                  protocol.get_file_content_type(),
-                                                                 protocol.get_file_description(), 
+                                                                 protocol.get_file_description(),
                                                                  protocol.get_file_category(),
                                                                  m_adapter.getStreamUtil());
-                LoaderInputStreamFactory input_stream =  new LoaderInputStreamFactory(protocol, filter, this);
+                LoaderInputStreamFactory input_stream = new LoaderInputStreamFactory(protocol, filter, this);
                 Properties props = new Properties();
                 props.setProperty("readerDescription", protocol.get_file_description());
                 props.setProperty("readerId", protocol.get_file_loader_id());
                 m_adapter.getCyServiceRegistrar().registerService(input_stream, InputStreamTaskFactory.class, props);
                 return true;
         }
-        
+
         public CyNetworkFactory get_network_factory() {
                 return m_adapter.getCyNetworkFactory();
         }
-        
+
         public CyNetworkViewFactory get_network_view_factory() {
                 return m_adapter.getCyNetworkViewFactory();
         }
-        
+
         public CyTableFactory get_table_factory() {
                 return m_adapter.getCyTableFactory();
         }

@@ -23,15 +23,17 @@ import java.util.Set;
 
 /**
  * Manage all storing data for the networks
+ *
  * @author davis
  */
 public class NetworkDatabase {
-        private final HashMap<Long, Set<Bindable>>      m_bindings;
-        
+
+        private final HashMap<Long, Set<Bindable>> m_bindings;
+
         NetworkDatabase() {
-                m_bindings      = new HashMap<>();
+                m_bindings = new HashMap<>();
         }
-        
+
         void add_network_bindings(AlignmentNetwork network, Bindable bindable) {
                 Set<Bindable> s = m_bindings.get(network.get_suid());
                 if (s != null) {
@@ -44,7 +46,7 @@ public class NetworkDatabase {
                         m_bindings.put(network.get_suid(), new_set);
                 }
         }
-        
+
         Bindable get_network_binding(AlignmentNetwork network, String bindable_id) {
                 Set<Bindable> bindables = m_bindings.get(network.get_suid());
                 if (bindables != null) {
@@ -54,9 +56,11 @@ public class NetworkDatabase {
                                 }
                         }
                         return null;
-                } else return null;
+                } else {
+                        return null;
+                }
         }
-        
+
         boolean has_network(AlignmentNetwork network) {
                 return m_bindings.containsKey(network.get_suid());
         }

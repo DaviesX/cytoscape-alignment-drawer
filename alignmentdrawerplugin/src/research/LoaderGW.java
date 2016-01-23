@@ -15,7 +15,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 package research;
 
 import java.io.InputStream;
@@ -36,34 +35,36 @@ import org.cytoscape.work.TaskMonitor;
 
 /**
  * Actually implementation of GW file loader
+ *
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class LoaderGW implements CyNetworkReader, LoaderProtocol {
-        private final String            c_GWFileExtension = "gw";
-        private final String            c_GWFileContent = "txt";
-        private final DataCategory      c_GWFileCategory = DataCategory.NETWORK;
-        private final String            c_GWFileDesc = "GW LEDA network file";
-        private final String            c_GWFileLoaderID = "GWLoader";
 
-        private HashSet<String>         m_extenstion = null;
-        private HashSet<String>         m_content = null;
+        private final String c_GWFileExtension = "gw";
+        private final String c_GWFileContent = "txt";
+        private final DataCategory c_GWFileCategory = DataCategory.NETWORK;
+        private final String c_GWFileDesc = "GW LEDA network file";
+        private final String c_GWFileLoaderID = "GWLoader";
 
-        private CyNetworkViewFactory    m_network_view_fact = null;
-        private CyNetworkFactory        m_network_fact = null;
-        private InputStream             m_istream = null;
-        private CyNetwork               m_network = null;
-        private boolean                 m_is_canceled = false;
-        
+        private HashSet<String> m_extenstion = null;
+        private HashSet<String> m_content = null;
+
+        private CyNetworkViewFactory m_network_view_fact = null;
+        private CyNetworkFactory m_network_fact = null;
+        private InputStream m_istream = null;
+        private CyNetwork m_network = null;
+        private boolean m_is_canceled = false;
+
         public LoaderGW() {
-                m_extenstion    = new HashSet<>();
-                m_content       = new HashSet<>();
+                m_extenstion = new HashSet<>();
+                m_content = new HashSet<>();
                 m_extenstion.add(c_GWFileExtension);
                 m_content.add(c_GWFileContent);
         }
 
         @Override
         public CyNetwork[] getNetworks() {
-                return new CyNetwork[] {m_network};
+                return new CyNetwork[]{m_network};
         }
 
         @Override
@@ -80,7 +81,7 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
         public void run(TaskMonitor tm) throws Exception {
                 System.out.println(getClass() + " - Running GW Loader...");
                 tm.setTitle("Loading GW file...");
-                
+
                 m_is_canceled = false;
 
                 String[] lines = Util.extract_lines_from_stream(m_istream);
@@ -95,12 +96,12 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                 if (lines.length < c_MinLines || !lines[0].equals("LEDA.GRAPH")) {
                         throw new Exception("Invalid LEDA.GRAPH");
                 }
-                
+
                 if (m_network_fact == null) {
                         throw new Exception("Have not given a network factory");
                 }
                 AlignmentNetwork network_mgr = new AlignmentNetwork(m_network_fact);
-                
+
                 // keeep track of progress
                 int j = 0;
                 int total = lines.length;
@@ -115,12 +116,12 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                 for (i = c_StartingLine + 1; i < lines.length; i++) {
                         if (m_is_canceled) {
                                 System.out.println(getClass() + " - Tasks canceled.");
-                                return ;
+                                return;
                         }
                         current_line = lines[i];
                         // pattern of a line containing a node: |{A1BG}|
                         Matcher matcher = regex_pattern.matcher(current_line);
-                        if (!matcher.matches() ) {
+                        if (!matcher.matches()) {
                                 // finished reading node list
                                 break;
                         }
@@ -139,7 +140,7 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                 for (; i < lines.length; i++) {
                         if (m_is_canceled) {
                                 System.out.println(getClass() + " - Tasks canceled.");
-                                return ;
+                                return;
                         }
                         current_line = lines[i];
                         Matcher matcher = regex_pattern2.matcher(current_line);
@@ -159,9 +160,9 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                         Util.advance_progress(tm, j, total);
                 }
                 System.out.println(getClass() + " - Finished reading edge list...");
-                
+
                 m_network = network_mgr.get_network();
-                
+
                 if (m_network.getNodeCount() != num_nodes) {
                         throw new Exception("node count stated in file doesn't match that of loaded");
                 }
@@ -208,7 +209,7 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
 
         @Override
         public void set_loader_service(CytoscapeLoaderService service) {
-                m_network_fact          = service.get_network_factory();
-                m_network_view_fact     = service.get_network_view_factory();
+                m_network_fact = service.get_network_factory();
+                m_network_view_fact = service.get_network_view_factory();
         }
 }

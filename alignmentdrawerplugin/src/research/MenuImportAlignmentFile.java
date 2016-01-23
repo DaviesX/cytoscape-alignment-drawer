@@ -31,9 +31,10 @@ import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 
 class LoadAlignmentDataTask implements Task {
-        private final LoaderSANAAlign         m_sana_align;
-        private final CySwingAppAdapter       m_adapter;
-        
+
+        private final LoaderSANAAlign m_sana_align;
+        private final CySwingAppAdapter m_adapter;
+
         LoadAlignmentDataTask(LoaderSANAAlign sana_align, CySwingAppAdapter adapter) {
                 m_sana_align = sana_align;
                 m_adapter = adapter;
@@ -56,19 +57,21 @@ class LoadAlignmentDataTask implements Task {
 }
 
 /**
- * Menu Item for importing alignment file.
- * Because Cytoscape couldn't load alignment data as table correctly, we will have to do it manually
+ * Menu Item for importing alignment file. Because Cytoscape couldn't load
+ * alignment data as table correctly, we will have to do it manually
+ *
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
-public class MenuImportAlignmentFile implements MenuProtocol{
-        private final String            c_MenuName = "SANA Alignment File";
-        private final String            c_ParentMenuName = "File.Import";
-        
-        private CytoscapeMenuService    m_service = null;
-        private CySwingAppAdapter       m_adapter = null;
-        
-        private final LoaderSANAAlign         m_sana_align;
-        
+public class MenuImportAlignmentFile implements MenuProtocol {
+
+        private final String c_MenuName = "SANA Alignment File";
+        private final String c_ParentMenuName = "File.Import";
+
+        private CytoscapeMenuService m_service = null;
+        private CySwingAppAdapter m_adapter = null;
+
+        private final LoaderSANAAlign m_sana_align;
+
         MenuImportAlignmentFile(LoaderSANAAlign sana_align) {
                 m_sana_align = sana_align;
         }
@@ -87,7 +90,7 @@ public class MenuImportAlignmentFile implements MenuProtocol{
         public void action_performed(ActionEvent e) {
                 // Manually take the task to import the alignment data
                 Set<String> ext = m_sana_align.get_file_extension();
-                File file = Util.run_file_chooser(m_sana_align.get_file_description(), 
+                File file = Util.run_file_chooser(m_sana_align.get_file_description(),
                                                   ext.iterator().next());
                 if (file != null) {
                         try {
@@ -112,5 +115,5 @@ public class MenuImportAlignmentFile implements MenuProtocol{
                 m_service = service;
                 m_adapter = m_service.get_adapter();
         }
-        
+
 }
