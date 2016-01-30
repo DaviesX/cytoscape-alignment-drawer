@@ -32,7 +32,8 @@ public class Alignmentplugintest {
          */
         public static void main(String[] args) throws FileNotFoundException, Exception {
                 ArrayList<research.Test> test_list = new ArrayList<>();
-                test_list.add(new research.TestGWLoader("yeast.gw"));
+                //test_list.add(new research.TestGWLoader("yeast.gw"));
+                test_list.add(new research.TestCustomDialog());
 
                 for (research.Test test : test_list) {
                         if (!test.test()) {

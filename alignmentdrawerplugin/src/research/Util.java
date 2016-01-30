@@ -35,6 +35,53 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.cytoscape.work.TaskMonitor;
+import static research.Util.LOCK;
+
+class DialogRunner extends Thread {
+
+        private CustomDialog m_dialog = null;
+
+        class DialogListener extends WindowAdapter {
+
+                private CustomDialog m_dialog = null;
+
+                public DialogListener(CustomDialog dialog) {
+                        m_dialog = dialog;
+                }
+
+                @Override
+                public void windowClosing(WindowEvent arg0) {
+                        synchronized (LOCK) {
+                                m_dialog.setVisible(false);
+                                LOCK.notify();
+                        }
+                }
+        }
+
+        public DialogRunner(CustomDialog dialog) {
+                m_dialog = dialog;
+                m_dialog.addWindowListener(new DialogListener(m_dialog));
+                m_dialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        }
+
+        @Override
+        public void run() {
+                System.out.println(getClass() + " - running " + m_dialog.get_name());
+                synchronized (LOCK) {
+                        m_dialog.run();
+                        m_dialog.pack();
+                        m_dialog.setVisible(true);
+                                        
+                        while (m_dialog.isVisible()) {
+                                try {
+                                        LOCK.wait();
+                                } catch (InterruptedException e) {
+                                }
+                        }
+                        System.out.println(getClass() + " - finished " + m_dialog.get_name());
+                }
+        }
+}
 
 /**
  * Utility class
@@ -72,50 +119,14 @@ public class Util {
                                                             list_of_data, default_string);
         }
 
-        public abstract class Dialog extends JFrame {
+        static final Object LOCK = new Object();
 
-                public abstract void set_data(Object data);
-
-                public abstract Object get_data();
-
-                public abstract String get_name();
-        }
-
-        private final static Object LOCK = new Object();
-
-        public static Object run_customized_dialog(final Dialog dialog, Object data) {
-                dialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-                dialog.setVisible(true);
-
-                Thread t = new Thread() {
-                        @Override
-                        public void run() {
-                                synchronized (LOCK) {
-                                        while (dialog.isVisible()) {
-                                                try {
-                                                        LOCK.wait();
-                                                } catch (InterruptedException e) {
-                                                }
-                                        }
-                                        System.out.println("run_customized_dialog - running "
-                                                           + dialog.get_name());
-                                }
-                        }
-                };
+        public static Object run_customized_dialog(final CustomDialog dialog, Object data) {
+                dialog.set_data(data);
+                
+                DialogRunner runner = new DialogRunner(dialog);
+                Thread t = new DialogRunner(dialog);
                 t.start();
-
-                dialog.addWindowListener(new WindowAdapter() {
-
-                        @Override
-                        public void windowClosing(WindowEvent arg0) {
-                                synchronized (LOCK) {
-                                        dialog.setVisible(false);
-                                        dialog.notify();
-                                }
-                        }
-
-                });
-
                 try {
                         t.join();
                 } catch (InterruptedException ex) {

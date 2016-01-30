@@ -18,6 +18,8 @@
 package research;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import org.cytoscape.app.swing.CySwingAppAdapter;
 import org.cytoscape.model.CyNetwork;
@@ -34,17 +36,24 @@ import org.cytoscape.work.TaskMonitor;
 public class TaskSwitchAlignmentView implements Task {
 
         enum SwitchMode {
+                Null,
                 ShowOrHideAlignedNetwork,
                 ShowOrHideListedNodes
         }
 
         private final CySwingAppAdapter m_adapter;
         private final boolean m_is_showing;
-        private SwitchMode m_mode;
+        private final SwitchMode m_mode;
+        private final SubnetworkDescriptor m_subnetwork;
 
-        TaskSwitchAlignmentView(CySwingAppAdapter adapter, boolean is_to_show) {
+        TaskSwitchAlignmentView(CySwingAppAdapter adapter, 
+                                boolean is_2show, SwitchMode switch_mode,
+                                String network_selected,
+                                List<String> g0_sig, List<String> g1_sig) {
                 m_adapter = adapter;
-                m_is_showing = is_to_show;
+                m_is_showing = is_2show;
+                m_mode = switch_mode;
+                m_subnetwork = new SubnetworkDescriptor();
         }
 
         private void show_or_hide_aligned_network(TaskMonitor tm) throws Exception {
@@ -100,7 +109,13 @@ public class TaskSwitchAlignmentView implements Task {
 
         @Override
         public void run(TaskMonitor tm) throws Exception {
-                show_or_hide_aligned_network(tm);
+                switch (m_mode) {
+                        case ShowOrHideAlignedNetwork:
+                                show_or_hide_aligned_network(tm);
+                                break;
+                        case ShowOrHideListedNodes:
+                                break;
+                }
         }
 
         @Override

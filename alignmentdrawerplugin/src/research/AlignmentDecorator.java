@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -76,15 +77,16 @@ public class AlignmentDecorator extends AlignmentNetwork {
                         return (other.m_network_ids == null || m_network_ids == null
                                 || other.m_network_ids.equals(m_network_ids))
                                && (other.m_node_ids == null || m_node_ids == null
-                                   || m_node_ids.containsAll(other.m_node_ids));
+                                   || m_node_ids.containsAll(other.m_node_ids)
+                                   || other.m_node_ids.containsAll(m_node_ids));
                 }
 
                 @Override
                 public int hashCode() {
-                        int hash = 7;
-                        hash = 23 * hash + Objects.hashCode(this.m_network_ids);
-                        hash = 23 * hash + Objects.hashCode(this.m_node_ids);
-                        return hash;
+//                        int hash = 7;
+//                        hash = 23 * hash + Objects.hashCode(this.m_network_ids);
+//                        hash = 23 * hash + Objects.hashCode(this.m_node_ids);
+                        return 0;
                 }
         }
 
@@ -191,7 +193,7 @@ public class AlignmentDecorator extends AlignmentNetwork {
                 // Decorate nodes
                 for (AlignmentNetwork.NodeIterator i = super.NodeIterator(); i.hasNext();) {
                         String sig = i.next();
-                        CyNode node = super.get_node_from_signature(sig);
+                        CyNode node = super.get_node_from_signature(new NodeSignature(sig));
                         Set<Long> belongings = Util.list_to_set(super.get_node_belongings(node));
                         Constraint constraint = new Constraint(belongings, sig);
                         ConstraintValue value = m_node_constraints.get(constraint);

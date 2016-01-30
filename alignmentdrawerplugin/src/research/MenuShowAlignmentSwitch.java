@@ -18,9 +18,139 @@
 package research;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.cytoscape.app.swing.CySwingAppAdapter;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.work.Task;
-import org.cytoscape.work.TaskIterator;
+import research.TaskSwitchAlignmentView.SwitchMode;
+
+class ReturnValue {
+
+        public List<String> g0_sig = new LinkedList<>();
+        public List<String> g1_sig = new LinkedList<>();
+        public boolean is_2switch = true;
+        public SwitchMode switch_mode = SwitchMode.ShowOrHideAlignedNetwork;
+        public String network_selected = "";
+}
+
+class AlignmentSwitchInput extends CustomDialog {
+
+        private final CySwingAppAdapter m_adapter;
+        private final ReturnValue m_ret = new ReturnValue();
+        private final UIGetSwitchNodes m_switch_node_ui = new UIGetSwitchNodes();
+        
+        private class ConfirmButtonAction implements ActionListener {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                        setVisible(false);
+                }
+                
+        }
+
+        public AlignmentSwitchInput(CySwingAppAdapter adapter) {
+                m_adapter = adapter;
+        }
+
+        @Override
+        public void set_data(Object data) {
+        }
+
+        private String[] network_set_string() {
+                Set<CyNetwork> networks = m_adapter.getCyNetworkManager().getNetworkSet();
+                if (!networks.isEmpty()) {
+                        String[] list_of_titles = new String[networks.size()];
+                        int i = 0;
+                        for (CyNetwork network : networks) {
+                                list_of_titles[i++] = network.toString();
+                        }
+                        return list_of_titles;
+                } else {
+                        return new String[]{"No networks can be shown"};
+                }
+        }
+
+        /**
+         * @return MenuShowAlignmentSwitch.SwitchSpecifier.
+         */
+        @Override
+        public Object get_data() {
+                String[] slist;
+                slist = m_switch_node_ui.txt_g0_input.getText().split("\n");
+                m_ret.g0_sig.addAll(Arrays.asList(slist));
+                
+                slist = m_switch_node_ui.txt_g1_input.getText().split("\n");
+                m_ret.g1_sig.addAll(Arrays.asList(slist));
+                
+                if (m_switch_node_ui.rb_switch_aligned.isSelected())
+                        m_ret.switch_mode = SwitchMode.ShowOrHideAlignedNetwork;
+                else if (m_switch_node_ui.rb_switch_customized.isSelected())
+                        m_ret.switch_mode = SwitchMode.ShowOrHideListedNodes;
+                else
+                        m_ret.switch_mode = SwitchMode.Null;
+                
+                m_ret.is_2switch = m_switch_node_ui.cb_is_2switch.isSelected();
+                return m_ret;
+        }
+
+        @Override
+        public String get_name() {
+                return getClass().toString();
+        }
+
+        @Override
+        public void run() {
+                m_ret.network_selected = Util.run_selection_dialog(network_set_string(),
+                                                                   "Available networks",
+                                                                   "Please choose a network to switch over");
+                m_switch_node_ui.btn_confirm.addActionListener(new ConfirmButtonAction());
+                setTitle("Alignment Switcher");
+                set_container(m_switch_node_ui);
+                pack();
+        }
+}
+
+class DOSUTFFS extends Thread {
+        
+        private final CytoscapeMenuService    m_service;
+        
+        public DOSUTFFS(CytoscapeMenuService service) {
+                m_service = service;
+        }
+        
+        @Override
+        public void run() {
+                AlignmentSwitchInput input
+                                     = new AlignmentSwitchInput(m_service.get_adapter());
+                ReturnValue ret = (ReturnValue) Util.run_customized_dialog(input, null);
+                if (ret.is_2switch) {
+                        System.out.println(getClass() + " - Set to hide not-aligned network");
+                } else {
+                        System.out.println(getClass() + " - Set to show everything");
+                }
+
+                Task task = new TaskSwitchAlignmentView(m_service.get_adapter(),
+                                                        ret.is_2switch,
+                                                        ret.switch_mode,
+                                                        ret.network_selected,
+                                                        ret.g0_sig,
+                                                        ret.g1_sig);
+                
+                //CySwingAppAdapter adapter = m_service.get_adapter();
+                try {
+                        //adapter.getTaskManager().execute(new TaskIterator(task));
+                        task.run(null);
+                } catch (Exception ex) {
+                        Logger.getLogger(DOSUTFFS.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        }
+}
 
 /**
  * Show/hide alignment menu
@@ -32,7 +162,6 @@ public class MenuShowAlignmentSwitch implements MenuProtocol {
         private final String c_MenuName = "Show/Hide Computed Alignment";
         private final String c_ParentMenuName = "Tools";
         private CytoscapeMenuService m_service;
-        private boolean m_is_showing = true;
 
         @Override
         public String get_menu_name() {
@@ -46,16 +175,8 @@ public class MenuShowAlignmentSwitch implements MenuProtocol {
 
         @Override
         public void action_performed(ActionEvent e) {
-                CySwingAppAdapter adapter = m_service.get_adapter();
-                if (m_is_showing) {
-                        System.out.println(getClass() + " - Set to hide not-aligned network");
-                        m_is_showing = false;
-                } else {
-                        System.out.println(getClass() + " - Set to show everything");
-                        m_is_showing = true;
-                }
-                Task task = new TaskSwitchAlignmentView(adapter, m_is_showing);
-                adapter.getTaskManager().execute(new TaskIterator(task));
+                DOSUTFFS dostuffs = new DOSUTFFS(m_service);
+                dostuffs.start();
         }
 
         @Override

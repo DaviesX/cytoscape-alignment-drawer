@@ -125,9 +125,12 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                                 // finished reading node list
                                 break;
                         }
-                        String signature = matcher.group(1);
+                        String sig_string = matcher.group(1);
                         // create a node with signature
-                        CyNode node = network_mgr.make_node(signature);
+                        NodeSignature sig = new NodeSignature();
+                        sig.add_id(sig_string);
+                        sig.add_namespace(m_istream.toString());
+                        CyNode node = network_mgr.make_node(sig);
                         network_mgr.add_node_belongings(node, null);
                         node_list.add(node);
                         Util.advance_progress(tm, j, total);
@@ -136,7 +139,9 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                 // load in edges
                 tm.setStatusMessage("Loading in edges...");
                 int num_edges = Integer.decode(lines[i++]);
-                Pattern regex_pattern2 = Pattern.compile("([0-9]*) ([0-9]*) [0-9]* \\|\\{\\}\\|");
+     //           Pattern regex_pattern2 = Pattern.compile("([0-9]*) ([0-9]*) [0-9]* \\|\\{*\\}\\|");
+     //           Pattern regex_pattern2 = Pattern.compile("([0-9]*) ([0-9]*) [0-9]* \\|\\{[0-9]*\\}\\|");
+                Pattern regex_pattern2 = Pattern.compile("([0-9]*) ([0-9]*) [0-9]* \\|\\{.*\\}\\|");
                 for (; i < lines.length; i++) {
                         if (m_is_canceled) {
                                 System.out.println(getClass() + " - Tasks canceled.");
@@ -165,9 +170,15 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
 
                 if (m_network.getNodeCount() != num_nodes) {
                         throw new Exception("node count stated in file doesn't match that of loaded");
+//                        System.out.println(getClass() 
+//                                        + " - node count stated in file doesn't match that of loaded: "
+//                                        + num_nodes + " != " + m_network.getNodeCount());
                 }
                 if (m_network.getEdgeCount() != num_edges) {
                         throw new Exception("edge count stated in file doesn't match that have been made");
+//                        System.out.println(getClass() 
+//                                        + " - edge count stated in file doesn't match that have been made: "
+//                                        + num_edges + " != " + m_network.getEdgeCount());
                 }
                 System.out.println(getClass() + " - Everything has been loaded.");
         }
