@@ -46,7 +46,7 @@ class AlignmentSwitchInput extends CustomDialog {
         private final UIGetSwitchNodes m_switch_node_ui = new UIGetSwitchNodes();
         
         private class ConfirmButtonAction implements ActionListener {
-
+                
                 @Override
                 public void actionPerformed(ActionEvent e) {
                         setVisible(false);
@@ -88,13 +88,16 @@ class AlignmentSwitchInput extends CustomDialog {
                 slist = m_switch_node_ui.txt_g1_input.getText().split("\n");
                 m_ret.g1_sig.addAll(Arrays.asList(slist));
                 
-                if (m_switch_node_ui.rb_switch_aligned.isSelected())
+                if (m_switch_node_ui.rb_switch_aligned.isSelected()) {
                         m_ret.switch_mode = SwitchMode.ShowOrHideAlignedNetwork;
-                else if (m_switch_node_ui.rb_switch_customized.isSelected())
+                        System.out.println(getClass() + " - " + SwitchMode.ShowOrHideAlignedNetwork);
+                } else if (m_switch_node_ui.rb_switch_customized.isSelected()) {
                         m_ret.switch_mode = SwitchMode.ShowOrHideListedNodes;
-                else
+                        System.out.println(getClass() + " - " + SwitchMode.ShowOrHideListedNodes);
+                } else {
                         m_ret.switch_mode = SwitchMode.Null;
-                
+                        System.out.println(getClass() + " - " + SwitchMode.Null);
+                }
                 m_ret.is_2switch = m_switch_node_ui.cb_is_2switch.isSelected();
                 return m_ret;
         }

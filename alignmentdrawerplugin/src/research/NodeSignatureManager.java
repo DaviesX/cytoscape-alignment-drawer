@@ -17,6 +17,7 @@
  */
 package research;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -25,7 +26,7 @@ import java.util.TreeSet;
  *
  * @author davis
  */
-public class NodeSignature {
+public class NodeSignatureManager {
 
         private final Set<String> m_namespaces = new TreeSet<>();
         private final Set<String> m_ids = new TreeSet<>();
@@ -33,8 +34,10 @@ public class NodeSignature {
         private final String COMMA = "#";
         private final String SEPARATOR = "/";
 
-        private void arrange_id_namespace(String ouput) {
-                String[] parts = ouput.split(SEPARATOR);
+        private void arrange_id_namespace(String sig_string) {
+                String[] parts = sig_string.split(SEPARATOR);
+                if (parts.length != 2)
+                        return;
                 String[] namespaces = parts[0].split(COMMA);
                 String[] ids = parts[1].split(COMMA);
                 for (String namespace : namespaces) {
@@ -47,22 +50,30 @@ public class NodeSignature {
                 }
         }
 
-        public NodeSignature() {
+        public NodeSignatureManager() {
         }
         
-        public NodeSignature(String output) {
-                try {
-                        arrange_id_namespace(output);
-                } catch (Exception ex) {
-                        System.out.println(getClass() + " - Error: " + output);
-                        throw ex;
-                }
+//        public NodeSignatureManager(String output) {
+//                try {
+//                        arrange_id_namespace(output);
+//                } catch (Exception ex) {
+//                        System.out.println(getClass() + " - Error: " + output);
+//                        // throw ex;
+//                }
+//        }
+        
+        public void override_with(String sig_string) {
+                clear();
+                arrange_id_namespace(sig_string);
         }
         
-        public void import_signature(String output) {
+        public void append_with(String sig_string) {
+                arrange_id_namespace(sig_string);
+        }
+        
+        public void clear() {
                 m_namespaces.clear();
                 m_ids.clear();
-                arrange_id_namespace(output);
         }
         
         public void add_id(String id) {
@@ -83,16 +94,19 @@ public class NodeSignature {
 
         @Override
         public boolean equals(Object o) {
-                if (!(o instanceof NodeSignature)) {
+                if (!(o instanceof NodeSignatureManager)) {
                         return false;
                 }
-                NodeSignature other = (NodeSignature) o;
-                return m_ids.containsAll(other.m_ids) && m_namespaces.containsAll(other.m_namespaces);
+                NodeSignatureManager other = (NodeSignatureManager) o;
+                return m_ids.equals(other.m_ids) && m_namespaces.equals(other.m_namespaces);
         }
 
         @Override
         public int hashCode() {
-                return 0;
+                int hash = 7;
+                hash = 53 * hash + Objects.hashCode(this.m_namespaces);
+                hash = 53 * hash + Objects.hashCode(this.m_ids);
+                return hash;
         }
 
         @Override

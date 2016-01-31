@@ -112,6 +112,7 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                 ArrayList<CyNode> node_list = new ArrayList<>();
                 String current_line;
                 Pattern regex_pattern = Pattern.compile("\\|\\{([[a-zA-Z][0-9][-][@][,][\"]]*)\\}\\|");
+                NodeSignatureManager sig_mgr = new NodeSignatureManager();
                 int i;
                 for (i = c_StartingLine + 1; i < lines.length; i++) {
                         if (m_is_canceled) {
@@ -127,10 +128,10 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                         }
                         String sig_string = matcher.group(1);
                         // create a node with signature
-                        NodeSignature sig = new NodeSignature();
-                        sig.add_id(sig_string);
-                        sig.add_namespace(m_istream.toString());
-                        CyNode node = network_mgr.make_node(sig);
+                        sig_mgr.clear();
+                        sig_mgr.add_id(sig_string);
+                        sig_mgr.add_namespace(m_istream.toString());
+                        CyNode node = network_mgr.make_node(sig_mgr);
                         network_mgr.add_node_belongings(node, null);
                         node_list.add(node);
                         Util.advance_progress(tm, j, total);

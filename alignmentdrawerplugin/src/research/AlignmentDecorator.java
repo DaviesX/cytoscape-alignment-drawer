@@ -191,9 +191,14 @@ public class AlignmentDecorator extends AlignmentNetwork {
                 int total = super.get_node_count() + super.get_edge_count();
 
                 // Decorate nodes
+                NodeSignatureManager sig_mgr = new NodeSignatureManager();
                 for (AlignmentNetwork.NodeIterator i = super.NodeIterator(); i.hasNext();) {
                         String sig = i.next();
-                        CyNode node = super.get_node_from_signature(new NodeSignature(sig));
+                        sig_mgr.override_with(sig);
+                        CyNode node = super.get_node_from_signature(sig_mgr);
+                        if (node == null) {
+                                System.out.println("Decorate: node: " + sig);
+                        }
                         Set<Long> belongings = Util.list_to_set(super.get_node_belongings(node));
                         Constraint constraint = new Constraint(belongings, sig);
                         ConstraintValue value = m_node_constraints.get(constraint);

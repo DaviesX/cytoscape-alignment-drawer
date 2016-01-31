@@ -30,7 +30,8 @@ public class TestNodeSignature implements Test {
         @Override
         public boolean test() {
                 String s = "java.io.BufferedInputStream@3bef6ef6#/MUK1#";
-                NodeSignature sig = new NodeSignature(s);
+                NodeSignatureManager sig = new NodeSignatureManager();
+                sig.override_with(s);
                 System.out.println(getClass() + " - s: " + s + " - sig: " + sig);
                 return sig.toString().equals(s);
         }

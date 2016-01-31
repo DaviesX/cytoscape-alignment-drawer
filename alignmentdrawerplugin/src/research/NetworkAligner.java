@@ -107,10 +107,12 @@ public class NetworkAligner {
                         network0_1.put(sigs.get(0), sigs.get(1));
                         Util.advance_progress(tm, j, total);
                 }
+                NodeSignatureManager sig_mgr = new NodeSignatureManager();
                 // Update the signatures with the one in the real network
                 for (AlignmentNetwork.NodeIterator i = network0.NodeIterator(); i.hasNext(); ) {
                         String real_sig = i.next();
-                        String plain_sig = the_only_element_in(new NodeSignature(real_sig).get_all_ids());
+                        sig_mgr.override_with(real_sig);
+                        String plain_sig = the_only_element_in(sig_mgr.get_all_ids());
                         String val = network0_1.get(plain_sig);
                         if (val != null) {
                                 network0_1.remove(plain_sig);
@@ -119,10 +121,11 @@ public class NetworkAligner {
                 }
                 for (AlignmentNetwork.NodeIterator i = network1.NodeIterator(); i.hasNext(); ) {
                         String real_sig = i.next();
-                        String plain_sig = the_only_element_in(new NodeSignature(real_sig).get_all_ids());
+                        sig_mgr.override_with(real_sig);
+                        String plain_sig = the_only_element_in(sig_mgr.get_all_ids());
                         String key = network0_1.getKey(plain_sig);
                         if (key != null) {
-                                network0_1.remove(plain_sig);
+                                network0_1.removeValue(plain_sig);
                                 network0_1.put(key, real_sig);
                         }
                 }
@@ -131,14 +134,16 @@ public class NetworkAligner {
                 // Add nodes 0
                 for (AlignmentNetwork.NodeIterator i = network0.NodeIterator(); i.hasNext();) {
                         String sig = i.next();
+                        
+                        sig_mgr.override_with(sig);
+                        CyNode node = aligned.make_node(sig_mgr);
+                        
                         if (network0_1.containsKey(sig)) {
                                 // This node can be aligned
-                                CyNode node = aligned.make_node(new NodeSignature(sig));
                                 aligned.add_node_belongings(node, network0.get_network());
                                 aligned.add_node_belongings(node, network1.get_network());
                         } else {
                                 // This node cannot be aligned
-                                CyNode node = aligned.make_node(new NodeSignature(sig));
                                 aligned.add_node_belongings(node, network0.get_network());
                         }
                         Util.advance_progress(tm, j, total);
@@ -147,20 +152,18 @@ public class NetworkAligner {
                 for (AlignmentNetwork.EdgeIterator i = network0.EdgeIterator(); i.hasNext();) {
                         AlignmentNetwork.Edge edge_sig = i.next();
                         CyNode node0, node1;
-                        node0 = aligned.get_node_from_signature(new NodeSignature(edge_sig.m_e0));
-                        node1 = aligned.get_node_from_signature(new NodeSignature(edge_sig.m_e1));
-//                        if (network0_1.containsKey(edge_sig.m_e0)) {
-//                                node0 = aligned.get_node_from_signature(new NodeSignature(edge_sig.m_e0));
-//                        } else {
-//                                node0 = aligned.get_node_from_signature(new NodeSignature(edge_sig.m_e0));
-//                        }
-//                        if (network0_1.containsKey(edge_sig.m_e1)) {
-//                                node1 = aligned.get_node_from_signature(new NodeSignature(edge_sig.m_e1));
-//                        } else {
-//                                node1 = aligned.get_node_from_signature(new NodeSignature(edge_sig.m_e1));
-//                        }
+                        
+                        sig_mgr.override_with(edge_sig.m_e0);
+                        node0 = aligned.get_node_from_signature(sig_mgr);
+                        
+                        sig_mgr.override_with(edge_sig.m_e1);
+                        node1 = aligned.get_node_from_signature(sig_mgr);
+                        
                         if (node0 == null || node1 == null) {
-                                System.out.println(getClass() + " - node0:" + edge_sig.m_e0 + "node1:" + edge_sig.m_e1);
+                                throw new Exception(getClass() + 
+                                                    " - Edge and node doesn't match: The pair (node0:" + 
+                                                    edge_sig.m_e0 + "node1:" + edge_sig.m_e1 + 
+                                                    ") cannot be found");
                         }
                         CyEdge edge = aligned.make_edge(node0, node1);
                         aligned.add_edge_belongings(edge, network0.get_network());
@@ -176,16 +179,9 @@ public class NetworkAligner {
                         String sig = i.next();
                         if (!network0_1.containsValue(sig)) {
                                 // This node is not aligned
-                                CyNode node = aligned.make_node(new NodeSignature(sig));
+                                sig_mgr.override_with(sig);
+                                CyNode node = aligned.make_node(sig_mgr);
                                 aligned.add_node_belongings(node, network1.get_network());
-                        } else {
-                                // This node is aligned but we shall change the signature
-                                // to reflect the relation of the aligned node
-                                String translated = network0_1.getKey(sig);
-                                CyNode node = aligned.get_node_from_signature(new NodeSignature(translated));
-                                NodeSignature nodesig = new NodeSignature(translated);
-                                nodesig.add_id(sig);
-                                aligned.mutate_node_signature(node, nodesig);
                         }
                         Util.advance_progress(tm, j, total);
                 }
@@ -195,38 +191,66 @@ public class NetworkAligner {
                         CyNode node0, node1;
                         if (network0_1.containsValue(edge_sig.m_e0)) {
                                 String translated = network0_1.getKey(edge_sig.m_e0);
-                                node0 = aligned.get_node_from_signature(new NodeSignature(translated));
+                                sig_mgr.override_with(translated);
+                                node0 = aligned.get_node_from_signature(sig_mgr);
                         } else {
-                                node0 = aligned.get_node_from_signature(new NodeSignature(edge_sig.m_e0));
+                                sig_mgr.override_with(edge_sig.m_e0);
+                                node0 = aligned.get_node_from_signature(sig_mgr);
                         }
                         if (network0_1.containsValue(edge_sig.m_e1)) {
                                 String translated = network0_1.getKey(edge_sig.m_e1);
-                                node1 = aligned.get_node_from_signature(new NodeSignature(translated));
+                                sig_mgr.override_with(translated);
+                                node1 = aligned.get_node_from_signature(sig_mgr);
                         } else {
-                                node1 = aligned.get_node_from_signature(new NodeSignature(edge_sig.m_e1));
+                                sig_mgr.override_with(edge_sig.m_e1);
+                                node1 = aligned.get_node_from_signature(sig_mgr);
                         }
                         if (node0 == null) {
                                 if (network0_1.containsValue(edge_sig.m_e0)) {
-                                        throw new Exception(" - node0 not found from the g0 network: "
+//                                        throw new Exception(" - node0 not found from the g0 network: "
+//                                                            + edge_sig.m_e0 + "->" + network0_1.get(edge_sig.m_e0));
+                                        System.out.println(getClass() + " - node0 not found from the g0 network: "
                                                             + edge_sig.m_e0 + "->" + network0_1.get(edge_sig.m_e0));
                                 } else {
-                                        throw new Exception(" - node0 not found from the g1 network: "
+//                                        throw new Exception(" - node0 not found from the g1 network: "
+//                                                            + edge_sig.m_e0);
+                                        System.out.println(getClass() + " - node0 not found from the g1 network: "
                                                             + edge_sig.m_e0);
                                 }
+                                continue;
                         }
                         if (node1 == null) {
                                 if (network0_1.containsValue(edge_sig.m_e1)) {
-                                        throw new Exception(" - node1 not found from the g0 network: "
+//                                        throw new Exception(" - node1 not found from the g0 network: "
+//                                                            + edge_sig.m_e1 + "->" + network0_1.get(edge_sig.m_e1));
+                                        System.out.println(getClass() + " - node1 not found from the g0 network: "
                                                             + edge_sig.m_e1 + "->" + network0_1.get(edge_sig.m_e1));
                                 } else {
-                                        throw new Exception(" - node1 not found from the g1 network: "
+//                                        throw new Exception(" - node1 not found from the g1 network: "
+//                                                            + edge_sig.m_e1);
+                                        System.out.println(getClass() + " - node1 not found from the g1 network: "
                                                             + edge_sig.m_e1);
                                 }
+                                continue;
                         }
                         if (!network0_1.containsValue(edge_sig.m_e0) || !network0_1.containsValue(edge_sig.m_e1)) {
                                 // This edge is not aligned
                                 CyEdge edge = aligned.make_edge(node0, node1);
                                 aligned.add_edge_belongings(edge, network1.get_network());
+                        }
+                        Util.advance_progress(tm, j, total);
+                }
+                // Finally adjust the aligned node name by adding the signature from network1
+                for (AlignmentNetwork.NodeIterator i = network1.NodeIterator(); i.hasNext();) {
+                        String sig = i.next();
+                        if (network0_1.containsValue(sig)) {
+                                // This node is aligned but we shall change the signature
+                                // to reflect the relation of the aligned node
+                                String translated = network0_1.getKey(sig);
+                                sig_mgr.override_with(translated);
+                                CyNode node = aligned.get_node_from_signature(sig_mgr);
+                                sig_mgr.append_with(sig);
+                                aligned.mutate_node_signature(node, sig_mgr);
                         }
                         Util.advance_progress(tm, j, total);
                 }

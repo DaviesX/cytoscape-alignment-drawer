@@ -17,6 +17,8 @@
  */
 package research;
 
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -57,10 +59,35 @@ class DialogRunner extends Thread {
                         }
                 }
         }
+        
+        class DialogListener2 implements ComponentListener {
+
+                @Override
+                public void componentResized(ComponentEvent e) {
+                }
+
+                @Override
+                public void componentMoved(ComponentEvent e) {
+                }
+
+                @Override
+                public void componentShown(ComponentEvent e) {
+                }
+
+                @Override
+                public void componentHidden(ComponentEvent e) {
+                        synchronized (LOCK) {
+                                m_dialog.setVisible(false);
+                                LOCK.notify();
+                        }
+                }
+                
+        }
 
         public DialogRunner(CustomDialog dialog) {
                 m_dialog = dialog;
                 m_dialog.addWindowListener(new DialogListener(m_dialog));
+                m_dialog.addComponentListener(new DialogListener2());
                 m_dialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         }
 

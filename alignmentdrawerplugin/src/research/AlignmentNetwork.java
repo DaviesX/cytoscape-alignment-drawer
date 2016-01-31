@@ -119,7 +119,7 @@ public class AlignmentNetwork {
                 return m_network.getSUID();
         }
 
-        public CyNode make_node(NodeSignature sig) {
+        public CyNode make_node(NodeSignatureManager sig) {
                 CyNode node = m_network.addNode();
                 CyRow attri = m_network.getRow(node);
                 attri.set(c_NodeSignatureSlot, sig.toString());
@@ -184,24 +184,24 @@ public class AlignmentNetwork {
                 attri.set(CyNetwork.SELECTED, is_selected);
         }
 
-        public void mutate_node_signature(CyNode node, NodeSignature new_sig) {
+        public void mutate_node_signature(CyNode node, NodeSignatureManager new_sig) {
                 CyRow attri = m_network.getRow(node);
                 attri.set(c_NodeSignatureSlot, new_sig.toString());
         }
 
-        public CyNode get_node_from_signature(NodeSignature sig) {
+        public CyNode get_node_from_signature(NodeSignatureManager sig) {
                 CyTable table = m_network.getDefaultNodeTable();
-//                Collection<CyRow> rows = table.getMatchingRows(c_NodeSignatureSlot, sig);
-                List<CyRow> rows = table.getAllRows();
-                NodeSignature sigtmp = new NodeSignature();
-                for (CyRow row : rows) {
-                        String curr_sig = row.get(c_NodeSignatureSlot, String.class);
-                        sigtmp.import_signature(curr_sig);
-                        if (sigtmp.equals(sig)) {
-                                Long ref = row.get(c_SUIDReferenceSlot, Long.class);
-                                return m_network.getNode(ref);
-                        }
-                }
+                Collection<CyRow> rows = table.getMatchingRows(c_NodeSignatureSlot, sig.toString());
+//                List<CyRow> rows = table.getAllRows();
+//                NodeSignatureManager sigtmp = new NodeSignatureManager();
+//                for (CyRow row : rows) {
+//                        String curr_sig = row.get(c_NodeSignatureSlot, String.class);
+//                        sigtmp.import_signature(curr_sig, true);
+//                        if (sigtmp.equals(sig)) {
+//                                Long ref = row.get(c_SUIDReferenceSlot, Long.class);
+//                                return m_network.getNode(ref);
+//                        }
+//                }
                 if (rows.isEmpty()) {
                         return null;
                 }
