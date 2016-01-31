@@ -88,7 +88,7 @@
   <SubComponents>
     <Component class="javax.swing.JButton" name="btn_confirm">
       <Properties>
-        <Property name="text" type="java.lang.String" value="btn_confirm"/>
+        <Property name="text" type="java.lang.String" value="Confirm"/>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
@@ -97,7 +97,7 @@
     <Component class="javax.swing.JCheckBox" name="cb_is_2switch">
       <Properties>
         <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="cb_is_2switch"/>
+        <Property name="text" type="java.lang.String" value="Switch to the Subnetwork"/>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
@@ -141,12 +141,12 @@
     </Container>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="g1_nodes"/>
+        <Property name="text" type="java.lang.String" value="G1 Nodes"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="g0_nodes"/>
+        <Property name="text" type="java.lang.String" value="G0 Nodes"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JRadioButton" name="rb_switch_customized">
@@ -154,7 +154,7 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="buttonGroup1"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="rb_switch_customized"/>
+        <Property name="text" type="java.lang.String" value="Switch the Customized Subnetwork"/>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
@@ -166,7 +166,7 @@
           <ComponentRef name="buttonGroup1"/>
         </Property>
         <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="rb_switch_aligned"/>
+        <Property name="text" type="java.lang.String" value="Switch the Aligned Subnetwork"/>
         <Property name="toolTipText" type="java.lang.String" value=""/>
       </Properties>
       <AuxValues>

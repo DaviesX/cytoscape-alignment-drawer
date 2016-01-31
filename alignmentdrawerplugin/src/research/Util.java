@@ -42,25 +42,8 @@ import static research.Util.LOCK;
 class DialogRunner extends Thread {
 
         private CustomDialog m_dialog = null;
-
-        class DialogListener extends WindowAdapter {
-
-                private CustomDialog m_dialog = null;
-
-                public DialogListener(CustomDialog dialog) {
-                        m_dialog = dialog;
-                }
-
-                @Override
-                public void windowClosing(WindowEvent arg0) {
-                        synchronized (LOCK) {
-                                m_dialog.setVisible(false);
-                                LOCK.notify();
-                        }
-                }
-        }
         
-        class DialogListener2 implements ComponentListener {
+        class DialogListener implements ComponentListener {
 
                 @Override
                 public void componentResized(ComponentEvent e) {
@@ -86,8 +69,7 @@ class DialogRunner extends Thread {
 
         public DialogRunner(CustomDialog dialog) {
                 m_dialog = dialog;
-                m_dialog.addWindowListener(new DialogListener(m_dialog));
-                m_dialog.addComponentListener(new DialogListener2());
+                m_dialog.addComponentListener(new DialogListener());
                 m_dialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         }
 

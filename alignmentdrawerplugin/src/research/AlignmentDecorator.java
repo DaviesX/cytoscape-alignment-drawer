@@ -194,9 +194,7 @@ public class AlignmentDecorator extends AlignmentNetwork {
                         String sig = i.next();
                         sig_mgr.override_with(sig);
                         CyNode node = super.get_node_from_signature(sig_mgr);
-                        if (node == null) {
-                                System.out.println("Decorate: node: " + sig);
-                        }
+
                         Set<Long> belongings = Util.list_to_set(super.get_node_belongings(node));
                         Set<String> sigs = new HashSet<>();
                         sigs.add(sig);
@@ -205,8 +203,12 @@ public class AlignmentDecorator extends AlignmentNetwork {
 
                         View<CyNode> node_view = view.getNodeView(node);
                         if (value != null) {
-                                node_view.setVisualProperty(BasicVisualLexicon.NODE_FILL_COLOR, value.color);
-                                node_view.setVisualProperty(BasicVisualLexicon.NODE_TRANSPARENCY, value.transparency);
+                                if (value.color != null)
+                                        node_view.setVisualProperty(BasicVisualLexicon.NODE_FILL_COLOR, 
+                                                                    value.color);
+                                if (value.transparency != null)
+                                        node_view.setVisualProperty(BasicVisualLexicon.NODE_TRANSPARENCY, 
+                                                                    value.transparency);
                         }
                         node_view.setVisualProperty(BasicVisualLexicon.NODE_WIDTH, c_NodeWidth);
                         node_view.setVisualProperty(BasicVisualLexicon.NODE_HEIGHT, c_NodeHeight);
@@ -228,10 +230,13 @@ public class AlignmentDecorator extends AlignmentNetwork {
 
                         View<CyEdge> edge_view = view.getEdgeView(edge);
                         if (value != null) {
-                                edge_view.setVisualProperty(BasicVisualLexicon.EDGE_STROKE_UNSELECTED_PAINT,
-                                                            value.color);
-                                edge_view.setVisualProperty(BasicVisualLexicon.EDGE_TRANSPARENCY,
-                                                            value.transparency);
+                                if (value.color != null)
+                                        edge_view.setVisualProperty(
+                                                BasicVisualLexicon.EDGE_STROKE_UNSELECTED_PAINT,
+                                                value.color);
+                                if (value.transparency != null)
+                                        edge_view.setVisualProperty(BasicVisualLexicon.EDGE_TRANSPARENCY,
+                                                                    value.transparency);
                         }
                         Util.advance_progress(tm, j, total);
                 }

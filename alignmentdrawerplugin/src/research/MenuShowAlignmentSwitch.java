@@ -19,6 +19,8 @@ package research;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +34,8 @@ import org.cytoscape.work.TaskIterator;
 import research.TaskSwitchAlignmentView.SwitchMode;
 
 class ReturnValue {
-
+        
+        public boolean is_valid = true;
         public List<String> g0_sig = new LinkedList<>();
         public List<String> g1_sig = new LinkedList<>();
         public boolean is_2switch = true;
@@ -46,13 +49,27 @@ class AlignmentSwitchInput extends CustomDialog {
         private final ReturnValue m_ret = new ReturnValue();
         private final UIGetSwitchNodes m_switch_node_ui = new UIGetSwitchNodes();
         
+        class InputDialogListener extends WindowAdapter {
+                
+                private final AlignmentSwitchInput m_input;
+                
+                public InputDialogListener(AlignmentSwitchInput input) {
+                        m_input = input;
+                }
+                
+                @Override
+                public void windowClosing(WindowEvent arg0) {
+                        m_input.m_ret.is_valid = false;
+                        setVisible(false);
+                }
+        }
+        
         private class ConfirmButtonAction implements ActionListener {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
                         setVisible(false);
                 }
-                
         }
 
         public AlignmentSwitchInput(CySwingAppAdapter adapter) {
@@ -93,8 +110,8 @@ class AlignmentSwitchInput extends CustomDialog {
                         m_ret.switch_mode = SwitchMode.ShowOrHideAlignedNetwork;
                         System.out.println(getClass() + " - " + SwitchMode.ShowOrHideAlignedNetwork);
                 } else if (m_switch_node_ui.rb_switch_customized.isSelected()) {
-                        m_ret.switch_mode = SwitchMode.ShowOrHideListedNodes;
-                        System.out.println(getClass() + " - " + SwitchMode.ShowOrHideListedNodes);
+                        m_ret.switch_mode = SwitchMode.ShowOrHideSubnetwork;
+                        System.out.println(getClass() + " - " + SwitchMode.ShowOrHideSubnetwork);
                 } else {
                         m_ret.switch_mode = SwitchMode.Null;
                         System.out.println(getClass() + " - " + SwitchMode.Null);
@@ -114,6 +131,7 @@ class AlignmentSwitchInput extends CustomDialog {
                                                                    "Available networks",
                                                                    "Please choose a network to switch over");
                 m_switch_node_ui.btn_confirm.addActionListener(new ConfirmButtonAction());
+                addWindowListener(new InputDialogListener(this));
                 setTitle("Alignment Switcher");
                 set_container(m_switch_node_ui);
                 pack();
@@ -132,12 +150,13 @@ class DOSUTFFS extends Thread {
         public void run() {
                 AlignmentSwitchInput input = new AlignmentSwitchInput(m_service.get_adapter());
                 ReturnValue ret = (ReturnValue) Util.run_customized_dialog(input, null);
-                if (ret.is_2switch) {
-                        System.out.println(getClass() + " - Set to hide not-aligned network");
-                } else {
-                        System.out.println(getClass() + " - Set to show everything");
-                }
 
+                if (!ret.is_valid) {
+                        System.out.println(getClass() + " - The switch action returns invalid return values. "
+                                           + "Stop proceeding");
+                        return ;
+                }
+                
                 Task task = new TaskSwitchAlignmentView(m_service.get_adapter(),
                                                         ret.is_2switch,
                                                         ret.switch_mode,

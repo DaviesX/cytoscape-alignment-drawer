@@ -42,10 +42,10 @@ public class UIGetSwitchNodes extends javax.swing.JPanel {
                 jScrollPane3 = new javax.swing.JScrollPane();
                 txt_history = new javax.swing.JTextArea();
 
-                btn_confirm.setText("btn_confirm");
+                btn_confirm.setText("Confirm");
 
                 cb_is_2switch.setSelected(true);
-                cb_is_2switch.setText("cb_is_2switch");
+                cb_is_2switch.setText("Switch to the Subnetwork");
 
                 txt_g0_input.setColumns(20);
                 txt_g0_input.setRows(5);
@@ -55,16 +55,16 @@ public class UIGetSwitchNodes extends javax.swing.JPanel {
                 txt_g1_input.setRows(5);
                 jScrollPane2.setViewportView(txt_g1_input);
 
-                jLabel2.setText("g1_nodes");
+                jLabel2.setText("G1 Nodes");
 
-                jLabel1.setText("g0_nodes");
+                jLabel1.setText("G0 Nodes");
 
                 buttonGroup1.add(rb_switch_customized);
-                rb_switch_customized.setText("rb_switch_customized");
+                rb_switch_customized.setText("Switch the Customized Subnetwork");
 
                 buttonGroup1.add(rb_switch_aligned);
                 rb_switch_aligned.setSelected(true);
-                rb_switch_aligned.setText("rb_switch_aligned");
+                rb_switch_aligned.setText("Switch the Aligned Subnetwork");
                 rb_switch_aligned.setToolTipText("");
 
                 txt_history.setEditable(false);
