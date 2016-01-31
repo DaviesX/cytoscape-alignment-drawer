@@ -249,6 +249,10 @@ public class NetworkAligner {
                                 String translated = network0_1.getKey(sig);
                                 sig_mgr.override_with(translated);
                                 CyNode node = aligned.get_node_from_signature(sig_mgr);
+                                if (node == null) {
+                                        // have to skip the incorrect node.
+                                        continue;
+                                }
                                 sig_mgr.append_with(sig);
                                 aligned.mutate_node_signature(node, sig_mgr);
                         }
