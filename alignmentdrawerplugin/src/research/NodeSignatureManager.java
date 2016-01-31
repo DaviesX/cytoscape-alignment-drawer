@@ -20,6 +20,7 @@ package research;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import org.apache.commons.collections4.SetUtils;
 
 /**
  * Manage signature identification.
@@ -98,15 +99,16 @@ public class NodeSignatureManager {
                         return false;
                 }
                 NodeSignatureManager other = (NodeSignatureManager) o;
-                return m_ids.equals(other.m_ids) && m_namespaces.equals(other.m_namespaces);
+                return !(SetUtils.intersection(m_ids, other.m_ids).isEmpty() ||
+                         SetUtils.intersection(m_namespaces, other.m_namespaces).isEmpty());
         }
 
         @Override
         public int hashCode() {
-                int hash = 7;
-                hash = 53 * hash + Objects.hashCode(this.m_namespaces);
-                hash = 53 * hash + Objects.hashCode(this.m_ids);
-                return hash;
+//                int hash = 7;
+//                hash = 53 * hash + Objects.hashCode(this.m_namespaces);
+//                hash = 53 * hash + Objects.hashCode(this.m_ids);
+                return 0;
         }
 
         @Override

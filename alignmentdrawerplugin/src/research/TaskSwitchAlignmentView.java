@@ -17,10 +17,8 @@
  */
 package research;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.cytoscape.app.swing.CySwingAppAdapter;
@@ -47,8 +45,8 @@ public class TaskSwitchAlignmentView implements Task {
         private final boolean m_is_2switch;
         private final SwitchMode m_mode;
         private final SubnetworkDescriptor m_subnetwork;
-        private List<String> g0_sig;
-        private List<String> g1_sig;
+        private final List<String> g0_sig;
+        private final List<String> g1_sig;
         private final String m_network_selected;
 
         TaskSwitchAlignmentView(CySwingAppAdapter adapter, 
@@ -59,6 +57,8 @@ public class TaskSwitchAlignmentView implements Task {
                 m_is_2switch = is_2switch;
                 m_mode = switch_mode;
                 m_subnetwork = new SubnetworkDescriptor();
+                this.g0_sig = g0_sig;
+                this.g1_sig = g1_sig;
                 m_network_selected = network_selected;
         }
         
@@ -109,43 +109,14 @@ public class TaskSwitchAlignmentView implements Task {
                 
                 bindings.aligned = align_net;
                 bindings.decorator = decorator;
+                bindings.view = view;
                 bindings.g0 = g0;
                 bindings.g1 = g1;
                 return bindings;
         }
 
         private void show_or_hide_aligned_network(String network_name, TaskMonitor tm) throws Exception {
-                System.out.println(getClass() + " - Begin switching alignment view...");
-                Bindings bindings = get_bindings_for(network_name);
-                // Obtain data from database
-                System.out.println(getClass() + " - network: " + m_network_selected
-                                   + " is in the database, will modify this network");
-                
-                // Configurate and decorate the view
-                ArrayList<AlignmentNetwork> g0_list = new ArrayList<>();
-                ArrayList<AlignmentNetwork> g1_list = new ArrayList<>();
-                g0_list.add(bindings.g0);
-                g1_list.add(bindings.g1);
-                if (m_is_2switch == true) {
-                        // Hide unaligned nodes/edges
-                        bindings.decorator.set_node_signature_constraint(new HashSet<>(g0_sig), null, 0);
-                        bindings.decorator.set_node_signature_constraint(new HashSet<>(g1_sig), null, 0);
-                } else {
-                        // Show everything
-                        bindings.decorator.set_network_node_constraint(g0_list, 127);
-                        bindings.decorator.set_network_node_constraint(g1_list, 127);
-                        bindings.decorator.set_network_edge_constraint(g0_list, 127);
-                        bindings.decorator.set_network_edge_constraint(g1_list, 127);
-                }
-                bindings.decorator.decorate(bindings.view, tm);
-                bindings.view.updateView();
-                System.out.println(getClass() + " - Finished switching alignment view...");
-        }
-        
-        private void show_or_hide_subnetwork(String network_name, 
-                                             SubnetworkDescriptor desc, 
-                                             TaskMonitor tm) throws Exception {
-                System.out.println(getClass() + " - Begin switching alignment view...");
+                System.out.println(getClass() + " - show_or_hide_aligned_network...");
                 Bindings bindings = get_bindings_for(network_name);
                 // Obtain data from database
                 System.out.println(getClass() + " - network: " + m_network_selected
@@ -168,6 +139,67 @@ public class TaskSwitchAlignmentView implements Task {
                         bindings.decorator.set_network_node_constraint(g1_list, 127);
                         bindings.decorator.set_network_edge_constraint(g0_list, 127);
                         bindings.decorator.set_network_edge_constraint(g1_list, 127);
+                }
+                bindings.decorator.decorate(bindings.view, tm);
+                bindings.view.updateView();
+                System.out.println(getClass() + " - Finished switching alignment view...");
+        }
+        
+        private void show_or_hide_subnetwork(String network_name, 
+                                             SubnetworkDescriptor desc, 
+                                             TaskMonitor tm) throws Exception {
+                System.out.println(getClass() + " - show_or_hide_subnetwork...");
+                Bindings bindings = get_bindings_for(network_name);
+                // Obtain data from database
+                System.out.println(getClass() + " - network: " + m_network_selected
+                                   + " is in the database, will modify this network");
+                
+                // Configurate and decorate the view
+                ArrayList<AlignmentNetwork> g0_list = new ArrayList<>();
+                ArrayList<AlignmentNetwork> g1_list = new ArrayList<>();
+                ArrayList<AlignmentNetwork> g01_list = new ArrayList<>();
+                g0_list.add(bindings.g0);
+                g1_list.add(bindings.g1);
+                g01_list.add(bindings.g0);
+                g01_list.add(bindings.g1);
+                System.out.println("G0 Namespace" + bindings.g0.get_network_namespace());
+                System.out.println("G1 Namespace" + bindings.g1.get_network_namespace());
+                if (m_is_2switch == true) {
+                        // Hide unaligned nodes/edges
+                        NodeSignatureManager sig_mgr = new NodeSignatureManager();
+                        Set<String> g0_real_sigs = new HashSet<>();
+                        for (String plain_sig : g0_sig) {
+                                sig_mgr.clear();
+                                sig_mgr.add_id(plain_sig);
+                                sig_mgr.add_namespace(bindings.g0.get_network_namespace());
+                                g0_real_sigs.add(sig_mgr.toString());
+                        }
+                        bindings.decorator.set_node_signature_constraint(g0_real_sigs, null, 127);
+                        bindings.decorator.set_edge_signature_constraint(g0_real_sigs, null, 127);
+                        Set<String> g1_real_sigs = new HashSet<>();
+                        for (String plain_sig : g1_sig) {
+                                sig_mgr.clear();
+                                sig_mgr.add_id(plain_sig);
+                                sig_mgr.add_namespace(bindings.g1.get_network_namespace());
+                                g1_real_sigs.add(sig_mgr.toString());
+                        }
+                        bindings.decorator.set_node_signature_constraint(g1_real_sigs, null, 127);
+                        bindings.decorator.set_edge_signature_constraint(g1_real_sigs, null, 127);
+                        
+                        bindings.decorator.set_network_node_constraint(g0_list, 0);
+                        bindings.decorator.set_network_node_constraint(g1_list, 0);
+                        bindings.decorator.set_network_node_constraint(g01_list, 0);
+                        bindings.decorator.set_network_edge_constraint(g0_list, 0);
+                        bindings.decorator.set_network_edge_constraint(g1_list, 0);
+                        bindings.decorator.set_network_edge_constraint(g01_list, 0);
+                } else {
+                        // Show everything
+                        bindings.decorator.set_network_node_constraint(g0_list, 127);
+                        bindings.decorator.set_network_node_constraint(g1_list, 127);
+                        bindings.decorator.set_network_node_constraint(g01_list, 127);
+                        bindings.decorator.set_network_edge_constraint(g0_list, 127);
+                        bindings.decorator.set_network_edge_constraint(g1_list, 127);
+                        bindings.decorator.set_network_edge_constraint(g01_list, 127);
                 }
                 bindings.decorator.decorate(bindings.view, tm);
                 bindings.view.updateView();

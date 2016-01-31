@@ -41,6 +41,7 @@ public class AlignmentNetwork {
         private final String c_SUIDReferenceSlot = ".SUID";
         private final String c_EdgeSignature0Slot = "AlignEdgeSig0";
         private final String c_EdgeSignature1Slot = "AlignEdgeSig1";
+        private final String c_NetworkNamespaceSlot = "NetworkNamespace";
         private CyNetwork m_network = null;
 
         static public final String c_AlignmentBindableId = "AlignmentNetworkBindable";
@@ -81,34 +82,47 @@ public class AlignmentNetwork {
                         is_compatible = false;
                         edge_table.createColumn(c_EdgeSignature1Slot, String.class, false);
                 }
+                // Configure the table
+                CyTable network_table = m_network.getDefaultNetworkTable();
+                if (network_table.getColumn(c_NetworkNamespaceSlot) == null) {
+                        is_compatible = false;
+                        network_table.createColumn(c_NetworkNamespaceSlot, String.class, false);
+                }
                 return is_compatible;
         }
 
-        AlignmentNetwork(AlignmentNetwork network) {
+        /**
+         * Copy constructor.
+         * 
+         * @param network the network to be copied.
+         */
+        public AlignmentNetwork(AlignmentNetwork network) {
                 if (!build_node_attributes(network.get_network())) {
                         System.out.println(this.getClass() + " - This network is not a compatible alignment network");
                 }
         }
 
         /**
-         * This will import the <CyNetwork> and absorb all the network data.
+         * This will import the CyNetwork and absorb all the network data.
          *
-         * @param network network to be imported
+         * @param network network to be imported.
          */
-        AlignmentNetwork(CyNetwork network) {
+        public AlignmentNetwork(CyNetwork network) {
                 if (!build_node_attributes(network)) {
                         System.out.println(this.getClass() + " - This network is not a compatible alignment network");
                 }
         }
 
         /**
-         * This will create a new <CyNetwork> with building using attributes for
+         * This will create a new CyNetwork with building using attributes for
          * the data.
          *
-         * @param fact network factory used to create new network
+         * @param fact network factory used to create new network.
+         * @param namespace the name space of this network.
          */
-        AlignmentNetwork(CyNetworkFactory fact) {
+        public AlignmentNetwork(CyNetworkFactory fact, String namespace) {
                 build_node_attributes(fact.createNetwork());
+                set_network_nemespace(namespace);
         }
 
         CyNetwork get_network() {
@@ -239,6 +253,14 @@ public class AlignmentNetwork {
 
         public void set_suggested_name(String name) {
                 m_network.getRow(m_network).set(CyNetwork.NAME, name);
+        }
+        
+        public String get_network_namespace() {
+                return m_network.getRow(m_network).get(c_NetworkNamespaceSlot, String.class);
+        }
+
+        private void set_network_nemespace(String namespace) {
+                m_network.getRow(m_network).set(c_NetworkNamespaceSlot, namespace);
         }
 
         public NodeIterator NodeIterator() {

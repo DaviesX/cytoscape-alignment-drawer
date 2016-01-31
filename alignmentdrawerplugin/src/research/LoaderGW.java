@@ -100,7 +100,8 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                 if (m_network_fact == null) {
                         throw new Exception("Have not given a network factory");
                 }
-                AlignmentNetwork network_mgr = new AlignmentNetwork(m_network_fact);
+                String namespace = m_istream.toString();
+                AlignmentNetwork network_mgr = new AlignmentNetwork(m_network_fact, namespace);
 
                 // keeep track of progress
                 int j = 0;
@@ -130,7 +131,7 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                         // create a node with signature
                         sig_mgr.clear();
                         sig_mgr.add_id(sig_string);
-                        sig_mgr.add_namespace(m_istream.toString());
+                        sig_mgr.add_namespace(namespace);
                         CyNode node = network_mgr.make_node(sig_mgr);
                         network_mgr.add_node_belongings(node, null);
                         node_list.add(node);

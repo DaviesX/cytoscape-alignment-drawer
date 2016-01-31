@@ -18,12 +18,11 @@
 package research;
 
 import java.awt.Color;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import org.apache.commons.collections4.SetUtils;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
@@ -56,11 +55,15 @@ public class AlignmentDecorator extends AlignmentNetwork {
         class Constraint {
 
                 private final Set<Long> m_network_ids;
-                private final Set<String> m_node_ids;
+                private final Set<NodeSignatureManager> m_node_ids = new HashSet<>();
 
                 Constraint(Set<Long> network_ids, Set<String> node_ids) {
                         m_network_ids = network_ids;
-                        m_node_ids = node_ids;
+                        for (String node_id : node_ids) {
+                                NodeSignatureManager mgr = new NodeSignatureManager();
+                                mgr.override_with(node_id);
+                                m_node_ids.add(mgr);
+                        }
                 }
 
 //                Constraint(Set<Long> network_ids, String node_id) {
@@ -75,8 +78,8 @@ public class AlignmentDecorator extends AlignmentNetwork {
                                 return false;
                         }
                         Constraint other = (Constraint) o;
-                        return !SetUtils.intersection(m_node_ids, other.m_node_ids).isEmpty() ||
-                               m_network_ids.equals(other.m_network_ids);
+                        return m_network_ids.equals(other.m_network_ids) ||
+                               !SetUtils.intersection(m_node_ids, other.m_node_ids).isEmpty();
                 }
 
                 @Override
@@ -89,8 +92,8 @@ public class AlignmentDecorator extends AlignmentNetwork {
         }
 
         private final CyNetwork m_decorated;
-        private final HashMap<Constraint, ConstraintValue> m_node_constraints;
-        private final HashMap<Constraint, ConstraintValue> m_edge_constraints;
+        private final LinkedHashMap<Constraint, ConstraintValue> m_node_constraints = new LinkedHashMap<>();
+        private final LinkedHashMap<Constraint, ConstraintValue> m_edge_constraints = new LinkedHashMap<>();
         private final Double c_NodeWidth = 12.0;
         private final Double c_NodeHeight = 12.0;
         private final NodeShape c_NodeShape = NodeShapeVisualProperty.ELLIPSE;
@@ -102,8 +105,6 @@ public class AlignmentDecorator extends AlignmentNetwork {
         AlignmentDecorator(AlignmentNetwork network) {
                 super(network);
                 m_decorated = super.get_network();
-                m_node_constraints = new HashMap<>();
-                m_edge_constraints = new HashMap<>();
                 m_style_name = super.get_suggested_name() + "_visual_style";
         }
 
@@ -175,7 +176,7 @@ public class AlignmentDecorator extends AlignmentNetwork {
                 m_node_constraints.put(new Constraint(new HashSet<Long>(), signatures),
                                        new ConstraintValue(color, transparency));
         }
-
+        
         public void set_edge_signature_constraint(Set<String> signatures,
                                                   Color color,
                                                   Integer transparency) {
@@ -199,7 +200,14 @@ public class AlignmentDecorator extends AlignmentNetwork {
                         Set<String> sigs = new HashSet<>();
                         sigs.add(sig);
                         Constraint constraint = new Constraint(belongings, sigs);
-                        ConstraintValue value = m_node_constraints.get(constraint);
+                        // Get the first matched constraint
+                        ConstraintValue value = null;
+                        for (Map.Entry<Constraint, ConstraintValue> entry : m_node_constraints.entrySet()) {
+                                if (entry.getKey().equals(constraint)) {
+                                        value = entry.getValue();
+                                        //break;
+                                }
+                        }
 
                         View<CyNode> node_view = view.getNodeView(node);
                         if (value != null) {
@@ -226,8 +234,15 @@ public class AlignmentDecorator extends AlignmentNetwork {
                         node_sigs.add(euid.m_e0);
                         node_sigs.add(euid.m_e1);
                         Constraint constraint = new Constraint(belongings, node_sigs);
-                        ConstraintValue value = m_edge_constraints.get(constraint);
-
+                        // Get the first matched constraint
+                        ConstraintValue value = null;
+                        for (Map.Entry<Constraint, ConstraintValue> entry : m_edge_constraints.entrySet()) {
+                                if (entry.getKey().equals(constraint)) {
+                                        value = entry.getValue();
+                                        //break;
+                                }
+                        }
+                        
                         View<CyEdge> edge_view = view.getEdgeView(edge);
                         if (value != null) {
                                 if (value.color != null)
