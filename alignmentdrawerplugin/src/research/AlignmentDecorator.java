@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import org.apache.commons.collections4.SetUtils;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -62,23 +63,20 @@ public class AlignmentDecorator extends AlignmentNetwork {
                         m_node_ids = node_ids;
                 }
 
-                Constraint(Set<Long> network_ids, String node_id) {
-                        m_network_ids = network_ids;
-                        m_node_ids = new HashSet<>();
-                        m_node_ids.add(node_id);
-                }
+//                Constraint(Set<Long> network_ids, String node_id) {
+//                        m_network_ids = network_ids;
+//                        m_node_ids = new HashSet<>();
+//                        m_node_ids.add(node_id);
+//                }
 
-                @Override
+                @Override 
                 public boolean equals(Object o) {
                         if (!(o instanceof Constraint)) {
                                 return false;
                         }
                         Constraint other = (Constraint) o;
-                        return (other.m_network_ids == null || m_network_ids == null
-                                || other.m_network_ids.equals(m_network_ids))
-                               && (other.m_node_ids == null || m_node_ids == null
-                                   || m_node_ids.containsAll(other.m_node_ids)
-                                   || other.m_node_ids.containsAll(m_node_ids));
+                        return !SetUtils.intersection(m_node_ids, other.m_node_ids).isEmpty() ||
+                               m_network_ids.equals(other.m_network_ids);
                 }
 
                 @Override
@@ -120,12 +118,12 @@ public class AlignmentDecorator extends AlignmentNetwork {
         public void set_network_edge_constraint(List<AlignmentNetwork> networks,
                                                 Color color,
                                                 Integer transparency) {
-                m_edge_constraints.put(new Constraint(make_network_id(networks), (Set<String>) null),
+                m_edge_constraints.put(new Constraint(make_network_id(networks), new HashSet<String>()),
                                        new ConstraintValue(color, transparency));
         }
 
         public void set_network_edge_constraint(List<AlignmentNetwork> networks, Color color) {
-                Constraint constraint = new Constraint(make_network_id(networks), (Set<String>) null);
+                Constraint constraint = new Constraint(make_network_id(networks), new HashSet<String>());
                 ConstraintValue value = m_edge_constraints.get(constraint);
                 if (value != null) {
                         value.color = color;
@@ -135,7 +133,7 @@ public class AlignmentDecorator extends AlignmentNetwork {
         }
 
         public void set_network_edge_constraint(List<AlignmentNetwork> networks, Integer transparency) {
-                Constraint constraint = new Constraint(make_network_id(networks), (Set<String>) null);
+                Constraint constraint = new Constraint(make_network_id(networks), new HashSet<String>());
                 ConstraintValue value = m_edge_constraints.get(constraint);
                 if (value != null) {
                         value.transparency = transparency;
@@ -147,12 +145,12 @@ public class AlignmentDecorator extends AlignmentNetwork {
         public void set_network_node_constraint(List<AlignmentNetwork> networks,
                                                 Color color,
                                                 Integer transparency) {
-                m_node_constraints.put(new Constraint(make_network_id(networks), (Set<String>) null),
+                m_node_constraints.put(new Constraint(make_network_id(networks), new HashSet<String>()),
                                        new ConstraintValue(color, transparency));
         }
 
         public void set_network_node_constraint(List<AlignmentNetwork> networks, Integer transparency) {
-                Constraint constraint = new Constraint(make_network_id(networks), (Set<String>) null);
+                Constraint constraint = new Constraint(make_network_id(networks), new HashSet<String>());
                 ConstraintValue value = m_node_constraints.get(constraint);
                 if (value != null) {
                         value.transparency = transparency;
@@ -162,7 +160,7 @@ public class AlignmentDecorator extends AlignmentNetwork {
         }
 
         public void set_network_node_constraint(List<AlignmentNetwork> networks, Color color) {
-                Constraint constraint = new Constraint(make_network_id(networks), (Set<String>) null);
+                Constraint constraint = new Constraint(make_network_id(networks), new HashSet<String>());
                 ConstraintValue value = m_node_constraints.get(constraint);
                 if (value != null) {
                         value.color = color;
@@ -174,14 +172,14 @@ public class AlignmentDecorator extends AlignmentNetwork {
         public void set_node_signature_constraint(Set<String> signatures,
                                                   Color color,
                                                   Integer transparency) {
-                m_node_constraints.put(new Constraint(null, signatures),
+                m_node_constraints.put(new Constraint(new HashSet<Long>(), signatures),
                                        new ConstraintValue(color, transparency));
         }
 
         public void set_edge_signature_constraint(Set<String> signatures,
                                                   Color color,
                                                   Integer transparency) {
-                m_edge_constraints.put(new Constraint(null, signatures),
+                m_edge_constraints.put(new Constraint(new HashSet<Long>(), signatures),
                                        new ConstraintValue(color, transparency));
         }
 
@@ -200,7 +198,9 @@ public class AlignmentDecorator extends AlignmentNetwork {
                                 System.out.println("Decorate: node: " + sig);
                         }
                         Set<Long> belongings = Util.list_to_set(super.get_node_belongings(node));
-                        Constraint constraint = new Constraint(belongings, sig);
+                        Set<String> sigs = new HashSet<>();
+                        sigs.add(sig);
+                        Constraint constraint = new Constraint(belongings, sigs);
                         ConstraintValue value = m_node_constraints.get(constraint);
 
                         View<CyNode> node_view = view.getNodeView(node);

@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import org.cytoscape.app.swing.CySwingAppAdapter;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.work.Task;
+import org.cytoscape.work.TaskIterator;
 import research.TaskSwitchAlignmentView.SwitchMode;
 
 class ReturnValue {
@@ -129,8 +130,7 @@ class DOSUTFFS extends Thread {
         
         @Override
         public void run() {
-                AlignmentSwitchInput input
-                                     = new AlignmentSwitchInput(m_service.get_adapter());
+                AlignmentSwitchInput input = new AlignmentSwitchInput(m_service.get_adapter());
                 ReturnValue ret = (ReturnValue) Util.run_customized_dialog(input, null);
                 if (ret.is_2switch) {
                         System.out.println(getClass() + " - Set to hide not-aligned network");
@@ -145,10 +145,10 @@ class DOSUTFFS extends Thread {
                                                         ret.g0_sig,
                                                         ret.g1_sig);
                 
-                //CySwingAppAdapter adapter = m_service.get_adapter();
+                CySwingAppAdapter adapter = m_service.get_adapter();
                 try {
-                        //adapter.getTaskManager().execute(new TaskIterator(task));
-                        task.run(null);
+                        adapter.getTaskManager().execute(new TaskIterator(task));
+                        //task.run(null);
                 } catch (Exception ex) {
                         Logger.getLogger(DOSUTFFS.class.getName()).log(Level.SEVERE, null, ex);
                 }

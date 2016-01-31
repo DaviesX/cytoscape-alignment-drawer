@@ -42,69 +42,81 @@ public class TaskSwitchAlignmentView implements Task {
         }
 
         private final CySwingAppAdapter m_adapter;
-        private final boolean m_is_showing;
+        private final boolean m_is_2switch;
         private final SwitchMode m_mode;
         private final SubnetworkDescriptor m_subnetwork;
+        private final String m_network_selected;
 
         TaskSwitchAlignmentView(CySwingAppAdapter adapter, 
-                                boolean is_2show, SwitchMode switch_mode,
+                                boolean is_2switch, SwitchMode switch_mode,
                                 String network_selected,
                                 List<String> g0_sig, List<String> g1_sig) {
                 m_adapter = adapter;
-                m_is_showing = is_2show;
+                m_is_2switch = is_2switch;
                 m_mode = switch_mode;
                 m_subnetwork = new SubnetworkDescriptor();
+                m_network_selected = network_selected;
+        }
+        
+        private CyNetwork get_network_by_name(String network_name) {
+                CyNetworkManager mgr = m_adapter.getCyNetworkManager();
+                Set<CyNetwork> networks = mgr.getNetworkSet();
+                for (CyNetwork network : networks) {
+                        if (network.getRow(network).
+                                get(CyNetwork.NAME, String.class).
+                                equals(network_name)) {
+                                return network;
+                        }
+                }
+                return null;
         }
 
         private void show_or_hide_aligned_network(TaskMonitor tm) throws Exception {
                 System.out.println(getClass() + " - Begin switching alignment view...");
-                CyNetworkManager mgr = m_adapter.getCyNetworkManager();
-                Set<CyNetwork> networks = mgr.getNetworkSet();
+                
                 NetworkDatabase db = NetworkDatabaseSingleton.get_instance();
-                for (CyNetwork network : networks) {
-                        AlignmentNetwork align_net = new AlignmentNetwork(network);
-                        if (!db.has_network(align_net)) {
-                                // Doesn't have record of this network, skip
-                                System.out.println(getClass() + " - doesn't have record of: " + network.getSUID());
-                                continue;
-                        }
-                        // Obtain data from database
-                        System.out.println(getClass() + " - network: " + network.getSUID()
-                                           + " is in the database, will modify this network");
-                        Bindable b_decorated = db.get_network_binding(align_net,
-                                                                      AlignmentDecorator.c_DecoratedBindableId);
-                        Bindable b_g0_network = db.get_network_binding(align_net,
-                                                                       AlignmentNetwork.c_AlignmentBindableId + "_g0");
-                        Bindable b_g1_network = db.get_network_binding(align_net,
-                                                                       AlignmentNetwork.c_AlignmentBindableId + "_g1");
-                        Bindable b_network_view = db.get_network_binding(align_net,
-                                                                         CyNetworkView.class.getName());
-                        AlignmentDecorator decorator = (AlignmentDecorator) b_decorated.get_binded();
-                        AlignmentNetwork g0 = (AlignmentNetwork) b_g0_network.get_binded();
-                        AlignmentNetwork g1 = (AlignmentNetwork) b_g1_network.get_binded();
-                        CyNetworkView view = (CyNetworkView) b_network_view.get_binded();
-                        // Configurate and decorate the view
-                        ArrayList<AlignmentNetwork> g0_list = new ArrayList<>();
-                        ArrayList<AlignmentNetwork> g1_list = new ArrayList<>();
-                        g0_list.add(g0);
-                        g1_list.add(g1);
-                        if (m_is_showing == false) {
-                                // Hide unaligned nodes/edges
-                                decorator.set_network_node_constraint(g0_list, 0);
-                                decorator.set_network_node_constraint(g1_list, 0);
-                                decorator.set_network_edge_constraint(g0_list, 0);
-                                decorator.set_network_edge_constraint(g1_list, 0);
-                        } else {
-                                // Show everything
-                                decorator.set_network_node_constraint(g0_list, 127);
-                                decorator.set_network_node_constraint(g1_list, 127);
-                                decorator.set_network_edge_constraint(g0_list, 127);
-                                decorator.set_network_edge_constraint(g1_list, 127);
-                        }
-                        decorator.decorate(view, tm);
-                        view.updateView();
-                        System.out.println(getClass() + " - Finished switching alignment view...");
+                CyNetwork network = get_network_by_name(m_network_selected);
+                AlignmentNetwork align_net = new AlignmentNetwork(network);
+                if (!db.has_network(align_net)) {
+                        // Doesn't have record of this network, skip
+                        throw new Exception(getClass() + " - doesn't have record of: " + network.getSUID());
                 }
+                // Obtain data from database
+                System.out.println(getClass() + " - network: " + network.getSUID()
+                                   + " is in the database, will modify this network");
+                Bindable b_decorated = db.get_network_binding(align_net,
+                                                              AlignmentDecorator.c_DecoratedBindableId);
+                Bindable b_g0_network = db.get_network_binding(align_net,
+                                                               AlignmentNetwork.c_AlignmentBindableId + "_g0");
+                Bindable b_g1_network = db.get_network_binding(align_net,
+                                                               AlignmentNetwork.c_AlignmentBindableId + "_g1");
+                Bindable b_network_view = db.get_network_binding(align_net,
+                                                                 CyNetworkView.class.getName());
+                AlignmentDecorator decorator = (AlignmentDecorator) b_decorated.get_binded();
+                AlignmentNetwork g0 = (AlignmentNetwork) b_g0_network.get_binded();
+                AlignmentNetwork g1 = (AlignmentNetwork) b_g1_network.get_binded();
+                CyNetworkView view = (CyNetworkView) b_network_view.get_binded();
+                // Configurate and decorate the view
+                ArrayList<AlignmentNetwork> g0_list = new ArrayList<>();
+                ArrayList<AlignmentNetwork> g1_list = new ArrayList<>();
+                g0_list.add(g0);
+                g1_list.add(g1);
+                if (m_is_2switch == true) {
+                        // Hide unaligned nodes/edges
+                        decorator.set_network_node_constraint(g0_list, 0);
+                        decorator.set_network_node_constraint(g1_list, 0);
+                        decorator.set_network_edge_constraint(g0_list, 0);
+                        decorator.set_network_edge_constraint(g1_list, 0);
+                } else {
+                        // Show everything
+                        decorator.set_network_node_constraint(g0_list, 127);
+                        decorator.set_network_node_constraint(g1_list, 127);
+                        decorator.set_network_edge_constraint(g0_list, 127);
+                        decorator.set_network_edge_constraint(g1_list, 127);
+                }
+                decorator.decorate(view, tm);
+                view.updateView();
+                System.out.println(getClass() + " - Finished switching alignment view...");
         }
 
         @Override
