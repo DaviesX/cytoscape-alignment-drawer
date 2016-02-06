@@ -174,8 +174,7 @@ public class TaskSwitchAlignmentView implements Task {
                         if (plain_sig.equals(""))
                                 continue;
                         NodeSignatureManager sig_mgr = new NodeSignatureManager();
-                        sig_mgr.add_id(plain_sig);
-                        sig_mgr.add_namespace(bindings.g0.get_network_namespace());
+                        sig_mgr.add_namespaced_id(bindings.g0.get_network_namespace(), plain_sig);
                         g0_real_sigs.add(sig_mgr);
                 }
                 Set<NodeSignatureManager> g1_real_sigs = new HashSet<>();
@@ -183,8 +182,7 @@ public class TaskSwitchAlignmentView implements Task {
                         if (plain_sig.equals(""))
                                 continue;
                         NodeSignatureManager sig_mgr = new NodeSignatureManager();
-                        sig_mgr.add_id(plain_sig);
-                        sig_mgr.add_namespace(bindings.g1.get_network_namespace());
+                        sig_mgr.add_namespaced_id(bindings.g1.get_network_namespace(), plain_sig);
                         g1_real_sigs.add(sig_mgr);
                 }
                 if (!g0_real_sigs.isEmpty())

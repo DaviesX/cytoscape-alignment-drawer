@@ -17,10 +17,12 @@
  */
 package research;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 /**
  * Manage signature identification.
@@ -29,8 +31,9 @@ import org.apache.commons.collections4.SetUtils;
  */
 public class NodeSignatureManager {
 
-        private final Set<String> m_namespaces = new TreeSet<>();
-        private final Set<String> m_ids = new TreeSet<>();
+//        private final LinkedHashSet<String> m_namespaces = new LinkedHashSet<>();
+//        private final LinkedHashSet<String> m_ids = new LinkedHashSet<>();
+        private final DualHashBidiMap<String, String> m_node_id = new DualHashBidiMap<>();
 
         private final String COMMA = "#";
         private final String SEPARATOR = "/";
@@ -41,13 +44,10 @@ public class NodeSignatureManager {
                         return;
                 String[] namespaces = parts[0].split(COMMA);
                 String[] ids = parts[1].split(COMMA);
-                for (String namespace : namespaces) {
-                        if (!namespace.equals(""))
-                                m_namespaces.add(namespace);
-                }
-                for (String id : ids) {
-                        if (!id.equals(""))
-                                m_ids.add(id);
+                for (int i = 0; i < ids.length; i ++) {
+                        if (namespaces[i].equals("") || ids[i].equals(""))
+                                continue;
+                        m_node_id.put(namespaces[i], ids[i]);
                 }
         }
 
@@ -73,24 +73,19 @@ public class NodeSignatureManager {
         }
         
         public void clear() {
-                m_namespaces.clear();
-                m_ids.clear();
+                m_node_id.clear();
         }
         
-        public void add_id(String id) {
-                m_ids.add(id);
-        }
-
-        public void add_namespace(String namespace) {
-                m_namespaces.add(namespace);
+        public void add_namespaced_id(String namespace, String id) {
+                m_node_id.put(namespace, id);
         }
         
         public Set<String> get_all_ids() {
-                return m_ids;
+                return m_node_id.values();
         }
         
         public Set<String> get_all_namespaces() {
-                return m_namespaces;
+                return m_node_id.keySet();
         }
 
         @Override
@@ -99,8 +94,13 @@ public class NodeSignatureManager {
                         return false;
                 }
                 NodeSignatureManager other = (NodeSignatureManager) o;
-                return !(SetUtils.intersection(m_ids, other.m_ids).isEmpty() ||
-                         SetUtils.intersection(m_namespaces, other.m_namespaces).isEmpty());
+                Set<String> common_ids = SetUtils.intersection(get_all_ids(), other.get_all_ids());
+                for (String common_id : common_ids) {
+                        if (m_node_id.getKey(common_id).equals(other.m_node_id.getKey(common_id))) {
+                                return true;
+                        }
+                }
+                return false;
         }
 
         @Override
@@ -114,12 +114,14 @@ public class NodeSignatureManager {
         @Override
         public String toString() {
                 StringBuilder s = new StringBuilder();
-                for (String ns : m_namespaces) {
+                List<String> keys = new ArrayList<>();
+                for (String ns : m_node_id.keySet()) {
+                        keys.add(ns);
                         s.append(ns).append(COMMA);
                 }
                 s.append(SEPARATOR);
-                for (String id : m_ids) {
-                        s.append(id).append(COMMA);
+                for (String namespace : keys) {
+                        s.append(m_node_id.get(namespace)).append(COMMA);
                 }
                 return s.toString();
         }

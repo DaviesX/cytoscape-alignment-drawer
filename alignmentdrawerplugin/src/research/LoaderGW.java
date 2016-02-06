@@ -130,8 +130,7 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                         String sig_string = matcher.group(1);
                         // create a node with signature
                         sig_mgr.clear();
-                        sig_mgr.add_id(sig_string);
-                        sig_mgr.add_namespace(namespace);
+                        sig_mgr.add_namespaced_id(namespace, sig_string);
                         CyNode node = network_mgr.make_node(sig_mgr);
                         network_mgr.add_node_belongings(node, null);
                         node_list.add(node);
