@@ -20,8 +20,8 @@ package research;
 import java.awt.Color;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.view.model.CyNetworkView;
@@ -113,7 +113,7 @@ public class NetworkRenderer {
 
                         // Decorate nodes
                         NodeSignatureManager sig_mgr = new NodeSignatureManager();
-                        List<CyNode> net_nodes = desc.get_network_nodes();
+                        Set<CyNode> net_nodes = desc.get_network_nodes();
                         List<NodeSignatureManager> net_node_sigs = desc.get_network_node_signatures();
                         Shader shader = batch.m_shader;
                         int k = 0;
@@ -136,7 +136,7 @@ public class NetworkRenderer {
                                 Util.advance_progress(tm, j, total);
                         }
                         // Decorate edges
-                        List<CyEdge> net_edges = desc.get_network_edges();
+                        Set<CyEdge> net_edges = desc.get_network_edges();
                         for (CyEdge edge : net_edges) {
                                 View<CyEdge> edge_view = view.getEdgeView(edge);
                                 if (shader != null) {

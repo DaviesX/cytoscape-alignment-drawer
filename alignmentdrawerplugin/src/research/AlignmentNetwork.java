@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
@@ -277,6 +278,14 @@ public class AlignmentNetwork {
 
         int get_edge_count() {
                 return m_network.getEdgeCount();
+        }
+        
+        public List<CyEdge> get_neighbour_edges(CyNode node) {
+                return m_network.getAdjacentEdgeList(node, CyEdge.Type.ANY);
+        }
+        
+        public List<CyNode> get_neighbour_nodes(CyNode node) {
+                return m_network.getNeighborList(node, CyEdge.Type.ANY);
         }
 
         public class NodeIterator implements Iterator<String> {

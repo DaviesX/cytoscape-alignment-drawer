@@ -45,17 +45,21 @@ public class TaskSwitchAlignmentView implements Task {
 
         private final CySwingAppAdapter m_adapter;
         private final boolean m_is_2switch;
+        private final boolean m_2show_neighbour;
         private final SwitchMode m_mode;
         private final List<String> g0_sig;
         private final List<String> g1_sig;
         private final String m_network_selected;
 
         TaskSwitchAlignmentView(CySwingAppAdapter adapter,
-                                boolean is_2switch, SwitchMode switch_mode,
+                                boolean is_2switch, 
+                                SwitchMode switch_mode,
+                                boolean is_2show_neighbour,
                                 String network_selected,
                                 List<String> g0_sig, List<String> g1_sig) {
                 m_adapter = adapter;
                 m_is_2switch = is_2switch;
+                m_2show_neighbour = is_2show_neighbour;
                 m_mode = switch_mode;
                 this.g0_sig = g0_sig;
                 this.g1_sig = g1_sig;
@@ -119,34 +123,29 @@ public class TaskSwitchAlignmentView implements Task {
                                    + " is in the database, will modify this network");
 
                 // Configurate and decorate the view
-                HashSet<AlignmentNetwork> g0_set = new HashSet<>();
-                HashSet<AlignmentNetwork> g1_set = new HashSet<>();
-                g0_set.add(bindings.g0);
-                g1_set.add(bindings.g1);
+                HashSet<AlignmentNetwork> aligned_set = new HashSet<>();
+                aligned_set.add(bindings.g0);
+                aligned_set.add(bindings.g1);
 
-                NetworkDescriptor g0_desc = new NetworkDescriptor(bindings.aligned);
-                NetworkDescriptor g1_desc = new NetworkDescriptor(bindings.aligned);
+                NetworkDescriptor aligned_compl_desc = new NetworkDescriptor(bindings.aligned);
+                NetworkDescriptor aligned_desc = new NetworkDescriptor(bindings.aligned);
 
-                g0_desc.select_by_belongings(g0_set);
-                g1_desc.select_by_belongings(g1_set);
+                aligned_compl_desc.select_by_belongings(aligned_set, true, m_2show_neighbour);
+                aligned_desc.select_by_belongings(aligned_set, false, m_2show_neighbour);
 
                 NetworkRenderer renderer = new NetworkRenderer(null);
                 List<NetworkRenderer.Batch> batches = new LinkedList<>();
 
                 if (m_is_2switch == true) {
                         // Hide unaligned nodes/edges
-                        NetworkRenderer.Shader sha_g0 = renderer.create_shader(null, 0);
-                        NetworkRenderer.Shader sha_g1 = renderer.create_shader(null, 0);
-
-                        batches.add(renderer.create_batch(g0_desc, sha_g0));
-                        batches.add(renderer.create_batch(g1_desc, sha_g1));
+                        NetworkRenderer.Shader sha_compl = renderer.create_shader(null, 0);
+                        NetworkRenderer.Shader sha_align = renderer.create_shader(null, 255);
+;                       batches.add(renderer.create_batch(aligned_compl_desc, sha_compl));
+                        batches.add(renderer.create_batch(aligned_desc, sha_align));
                 } else {
                         // Show everything
-                        NetworkRenderer.Shader sha_g0 = renderer.create_shader(null, 127);
-                        NetworkRenderer.Shader sha_g1 = renderer.create_shader(null, 127);
-
-                        batches.add(renderer.create_batch(g0_desc, sha_g0));
-                        batches.add(renderer.create_batch(g1_desc, sha_g1));
+                        NetworkRenderer.Shader sha_compl = renderer.create_shader(null, 127);
+                        batches.add(renderer.create_batch(aligned_compl_desc, sha_compl));
                 }
 
                 Collection<CyNetworkView> views = renderer.render(batches, bindings.view, tm);
@@ -186,9 +185,11 @@ public class TaskSwitchAlignmentView implements Task {
                         g1_real_sigs.add(sig_mgr);
                 }
                 if (!g0_real_sigs.isEmpty())
-                        g0_complement_desc.select_by_complement_signatures(g0_real_sigs);
+                        g0_complement_desc.select_by_complement_signatures(
+                                g0_real_sigs, m_2show_neighbour);
                 if (!g1_real_sigs.isEmpty())
-                        g1_complement_desc.select_by_complement_signatures(g1_real_sigs);
+                        g1_complement_desc.select_by_complement_signatures(
+                                g1_real_sigs, m_2show_neighbour);
                 
                 NetworkRenderer.Shader sha_g0;
                 NetworkRenderer.Shader sha_g1;

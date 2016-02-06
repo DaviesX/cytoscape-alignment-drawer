@@ -30,19 +30,19 @@ import org.cytoscape.model.CyNode;
  * @author Wen, Chifeng <https://sourceforge.net/u/daviesx/profile/>
  */
 public class NetworkDescriptor {
-        
+
         private final String m_style_name;
         private final AlignmentNetwork m_network;
-        
-        private final List<CyNode> m_nodes = new LinkedList<>();
-        private final List<CyEdge> m_edges = new LinkedList<>();
+
+        private final Set<CyNode> m_nodes = new HashSet<>();
+        private final Set<CyEdge> m_edges = new HashSet<>();
         private final List<NodeSignatureManager> m_node_sigs = new LinkedList<>();
-        
+
         public NetworkDescriptor(AlignmentNetwork network) {
                 m_network = network;
                 m_style_name = m_network.get_suggested_name() + "_visual_style";
         }
-        
+
         public void select_all() {
                 // select nodes
                 for (AlignmentNetwork.NodeIterator i = m_network.NodeIterator(); i.hasNext();) {
@@ -60,8 +60,10 @@ public class NetworkDescriptor {
                         m_edges.add(edge);
                 }
         }
-        
-        public void select_by_belongings(Set<AlignmentNetwork> belnets, boolean with_neighbour_edges) {
+
+        public void select_by_belongings(Set<AlignmentNetwork> belnets,
+                                         boolean is_complement,
+                                         boolean with_neighbour_edges) {
                 Set<Long> belids = new HashSet<>();
                 for (AlignmentNetwork net : belnets) {
                         belids.add(net.get_suid());
@@ -74,22 +76,40 @@ public class NetworkDescriptor {
                         CyNode node = m_network.get_node_from_signature(sig_mgr);
 
                         Set<Long> belongings = Util.list_to_set(m_network.get_node_belongings(node));
-                        if (belids.equals(belongings)) {
+                        boolean cond = (!is_complement && belids.equals(belongings))
+                                       || (is_complement && !belids.equals(belongings));
+                        if (cond) {
                                 m_nodes.add(node);
                                 m_node_sigs.add(sig_mgr);
                         }
                 }
                 // select edges
+                NodeSignatureManager sig_mgr = new NodeSignatureManager();
                 for (AlignmentNetwork.EdgeIterator i = m_network.EdgeIterator(); i.hasNext();) {
                         AlignmentNetwork.Edge euid = i.next();
                         CyEdge edge = m_network.get_edge_from_suid(euid.m_eid);
                         Set<Long> belongings = Util.list_to_set(m_network.get_edge_belongings(edge));
-                        if (belids.equals(belongings)) {
+                        boolean cond = (!is_complement && belids.equals(belongings))
+                                       || (is_complement && !belids.equals(belongings));
+                        if (cond) {
                                 m_edges.add(edge);
+                                if (with_neighbour_edges) {
+                                        // neighbours as well
+                                        sig_mgr.override_with(euid.m_e0);
+                                        CyNode n0 = m_network.get_node_from_signature(sig_mgr);
+                                        sig_mgr.override_with(euid.m_e1);
+                                        CyNode n1 = m_network.get_node_from_signature(sig_mgr);
+
+                                        List<CyEdge> n0e = m_network.get_neighbour_edges(n0);
+                                        List<CyEdge> n1e = m_network.get_neighbour_edges(n1);
+
+                                        m_edges.addAll(n0e);
+                                        m_edges.addAll(n1e);
+                                }
                         }
                 }
         }
-        
+
         public void select_by_signatures(Set<NodeSignatureManager> sigs,
                                          boolean is_complement,
                                          boolean with_neighbour_edges) {
@@ -99,30 +119,28 @@ public class NetworkDescriptor {
                         NodeSignatureManager sig_mgr = new NodeSignatureManager();
                         sig_mgr.override_with(sig);
                         CyNode node = m_network.get_node_from_signature(sig_mgr);
-                        
+
                         if (!is_complement) {
                                 if (sigs.contains(sig_mgr)) {
                                         m_nodes.add(node);
                                         m_node_sigs.add(sig_mgr);
                                 }
-                        } else {
-                                if (!sigs.contains(sig_mgr)) {
-                                        m_nodes.add(node);
-                                        m_node_sigs.add(sig_mgr);
-                                }
+                        } else if (!sigs.contains(sig_mgr)) {
+                                m_nodes.add(node);
+                                m_node_sigs.add(sig_mgr);
                         }
                 }
                 // select edges
                 NodeSignatureManager e0 = new NodeSignatureManager();
                 NodeSignatureManager e1 = new NodeSignatureManager();
-                
+
                 for (AlignmentNetwork.EdgeIterator i = m_network.EdgeIterator(); i.hasNext();) {
                         AlignmentNetwork.Edge euid = i.next();
                         CyEdge edge = m_network.get_edge_from_suid(euid.m_eid);
-                        
+
                         e0.override_with(euid.m_e0);
                         e1.override_with(euid.m_e1);
-                        
+
                         if (with_neighbour_edges) {
                                 if (!is_complement) {
                                         if (sigs.contains(e0) || sigs.contains(e1)) {
@@ -146,36 +164,38 @@ public class NetworkDescriptor {
                         }
                 }
         }
-        
+
         public void select_by_belongings(Set<AlignmentNetwork> networks) {
-                select_by_belongings(networks, false);
+                select_by_belongings(networks, false, false);
         }
-        
+
         public void select_by_signatures(Set<NodeSignatureManager> sigs) {
                 select_by_signatures(sigs, false, false);
         }
-        
-        public void select_by_complement_signatures(Set<NodeSignatureManager> sigs) {
-                select_by_signatures(sigs, true, true);
+
+        public void select_by_complement_signatures(Set<NodeSignatureManager> sigs,
+                                                    boolean without_neighbour) {
+                select_by_signatures(sigs, without_neighbour, true);
         }
-       
+
         public List<NodeSignatureManager> get_network_node_signatures() {
                 return m_node_sigs;
         }
-        
-        public List<CyNode> get_network_nodes() {
+
+        public Set<CyNode> get_network_nodes() {
                 return m_nodes;
         }
-        
-        public List<CyEdge> get_network_edges() {
+
+        public Set<CyEdge> get_network_edges() {
                 return m_edges;
         }
-        
+
         public void clear() {
                 m_nodes.clear();
                 m_edges.clear();
                 m_node_sigs.clear();
         }
+
         public AlignmentNetwork get_alignment_network() {
                 return m_network;
         }

@@ -39,6 +39,7 @@ class ReturnValue {
         public List<String> g0_sig = new LinkedList<>();
         public List<String> g1_sig = new LinkedList<>();
         public boolean is_2switch = true;
+        public boolean is_2show_neighbour = true;
         public SwitchMode switch_mode = SwitchMode.ShowOrHideAlignedNetwork;
         public String network_selected = "";
 }
@@ -117,6 +118,7 @@ class AlignmentSwitchInput extends CustomDialog {
                         System.out.println(getClass() + " - " + SwitchMode.Null);
                 }
                 m_ret.is_2switch = m_switch_node_ui.cb_is_2switch.isSelected();
+                m_ret.is_2show_neighbour = m_switch_node_ui.cb_2show_neighbour.isSelected();
                 return m_ret;
         }
 
@@ -160,6 +162,7 @@ class DOSUTFFS extends Thread {
                 Task task = new TaskSwitchAlignmentView(m_service.get_adapter(),
                                                         ret.is_2switch,
                                                         ret.switch_mode,
+                                                        ret.is_2show_neighbour,
                                                         ret.network_selected,
                                                         ret.g0_sig,
                                                         ret.g1_sig);

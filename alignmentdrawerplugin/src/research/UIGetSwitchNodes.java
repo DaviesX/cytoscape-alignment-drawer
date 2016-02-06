@@ -41,6 +41,7 @@ public class UIGetSwitchNodes extends javax.swing.JPanel {
                 rb_switch_aligned = new javax.swing.JRadioButton();
                 jScrollPane3 = new javax.swing.JScrollPane();
                 txt_history = new javax.swing.JTextArea();
+                cb_2show_neighbour = new javax.swing.JCheckBox();
 
                 btn_confirm.setText("Confirm");
 
@@ -72,6 +73,9 @@ public class UIGetSwitchNodes extends javax.swing.JPanel {
                 txt_history.setRows(5);
                 jScrollPane3.setViewportView(txt_history);
 
+                cb_2show_neighbour.setSelected(true);
+                cb_2show_neighbour.setText("To Show Neighbours");
+
                 javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
                 this.setLayout(layout);
                 layout.setHorizontalGroup(
@@ -94,12 +98,14 @@ public class UIGetSwitchNodes extends javax.swing.JPanel {
                                                                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                                 .addGap(18, 18, 18)
                                                                                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                .addGap(0, 0, Short.MAX_VALUE))
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(cb_is_2switch)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(cb_2show_neighbour)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(btn_confirm, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addGap(67, 67, 67))))
+                                                .addComponent(btn_confirm, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addContainerGap())
                 );
                 layout.setVerticalGroup(
                         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -121,7 +127,8 @@ public class UIGetSwitchNodes extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(cb_is_2switch)
-                                        .addComponent(btn_confirm))
+                                        .addComponent(btn_confirm)
+                                        .addComponent(cb_2show_neighbour))
                                 .addContainerGap())
                 );
         }// </editor-fold>//GEN-END:initComponents
@@ -130,6 +137,7 @@ public class UIGetSwitchNodes extends javax.swing.JPanel {
         // Variables declaration - do not modify//GEN-BEGIN:variables
         public javax.swing.JButton btn_confirm;
         private javax.swing.ButtonGroup buttonGroup1;
+        public javax.swing.JCheckBox cb_2show_neighbour;
         public javax.swing.JCheckBox cb_is_2switch;
         private javax.swing.JLabel jLabel1;
         private javax.swing.JLabel jLabel2;
