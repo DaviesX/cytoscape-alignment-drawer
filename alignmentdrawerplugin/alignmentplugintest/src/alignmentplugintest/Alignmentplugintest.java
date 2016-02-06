@@ -19,6 +19,32 @@ package alignmentplugintest;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+
+class Entity {
+        String s;
+        public Entity(String x) {
+                s = x;
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+                return s.equals(((Entity) o).s);
+        }
+
+        @Override
+        public int hashCode() {
+                return 0;
+        }
+        
+        @Override
+        public String toString() {
+                return s;
+        }
+}
 
 /**
  *
@@ -33,13 +59,30 @@ public class Alignmentplugintest {
         public static void main(String[] args) throws FileNotFoundException, Exception {
                 ArrayList<research.Test> test_list = new ArrayList<>();
                 //test_list.add(new research.TestGWLoader("yeast.gw"));
-                test_list.add(new research.TestCustomDialog());
+                //test_list.add(new research.TestCustomDialog());
 
                 for (research.Test test : test_list) {
                         if (!test.test()) {
                                 System.out.println("Test case: " + test.name() + " doesn't pass, with reasons: " + test.failure_reason());
                         }
                 }
+
+                LinkedHashMap<Entity, String> map = new LinkedHashMap<>();
+                map.put(new Entity("A"), "1");
+                map.put(new Entity("B"), "2");
+                map.put(new Entity("C"), "3");
+                map.put(new Entity("B"), "4");
+
+                for (Map.Entry<Entity, String> entry : map.entrySet()) {
+                        System.out.println(entry);
+                }
+                
+                HashSet<String> a = new HashSet<>();
+                HashSet<String> b = new HashSet<>();
+                if (a.equals(b))
+                        System.out.println("a equals b");
+                else
+                        System.out.println("not equals");
         }
 
 }

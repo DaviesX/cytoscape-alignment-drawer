@@ -18,10 +18,9 @@
 package research;
 
 /**
- * Representing a subnetwork.
  *
  * @author davis
  */
-public class SubnetworkDescriptor {
-
+public class NetworkClipper {
+        
 }

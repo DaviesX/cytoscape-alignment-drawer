@@ -19,10 +19,17 @@ package research;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import org.cytoscape.app.swing.CySwingAppAdapter;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.model.CyTable;
 import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.CyNetworkViewManager;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskMonitor;
 
@@ -65,33 +72,54 @@ public class TaskBuildAlignedNetworks implements Task {
                 // Configure the style
                 tm.setStatusMessage("Styling the aligned network...");
                 // @todo: coloring scheme is hardcoded, maybe better find a way to let user choose the scheme
-                AlignmentDecorator decorated = new AlignmentDecorator(aligned);
-                ArrayList<AlignmentNetwork> aligned_list = new ArrayList<>();
-                ArrayList<AlignmentNetwork> g0_list = new ArrayList<>();
-                ArrayList<AlignmentNetwork> g1_list = new ArrayList<>();
-                aligned_list.add(g0);
-                aligned_list.add(g1);
-                g0_list.add(g0);
-                g1_list.add(g1);
-                decorated.set_network_node_constraint(aligned_list, Color.GREEN, 255);
-                decorated.set_network_node_constraint(g0_list, Color.RED, 127);
-                decorated.set_network_node_constraint(g1_list, Color.BLACK, 127);
-                decorated.set_network_edge_constraint(aligned_list, Color.GREEN, 255);
-                decorated.set_network_edge_constraint(g0_list, Color.RED, 127);
-                decorated.set_network_edge_constraint(g1_list, Color.BLACK, 127);
+                NetworkDescriptor g0_desc = new NetworkDescriptor(aligned);
+                NetworkDescriptor g1_desc = new NetworkDescriptor(aligned);
+                NetworkDescriptor g01_desc = new NetworkDescriptor(aligned);
+                
+                Set<AlignmentNetwork> aligned_set = new HashSet<>();
+                Set<AlignmentNetwork> g0_set = new HashSet<>();
+                Set<AlignmentNetwork> g1_set = new HashSet<>();
+                
+                aligned_set.add(g0);
+                aligned_set.add(g1);
+                g0_set.add(g0);
+                g1_set.add(g1);
+                
+                g0_desc.select_by_belongings(g0_set);
+                g1_desc.select_by_belongings(g1_set);
+                g01_desc.select_by_belongings(aligned_set);
+                
+                NetworkRenderer renderer = new NetworkRenderer(m_adapter.getCyNetworkViewFactory());
+                NetworkRenderer.Shader sha_aligned = renderer.create_shader(Color.GREEN, 255);
+                NetworkRenderer.Shader sha_g0 = renderer.create_shader(Color.RED, 127);
+                NetworkRenderer.Shader sha_g1 = renderer.create_shader(Color.BLACK, 127);
+
+                List<NetworkRenderer.Batch> batches = new LinkedList<>();
+                batches.add(renderer.create_batch(g0_desc, sha_g0));
+                batches.add(renderer.create_batch(g1_desc, sha_g1));
+                batches.add(renderer.create_batch(g01_desc, sha_aligned));
+                
                 // Apply visual style to the network
                 // Then put new network and its view to the manager
-                CyNetworkView view
-                              = m_adapter.getCyNetworkViewFactory().createNetworkView(decorated.export_cy_network());
-                decorated.decorate(view, tm);
-                view.updateView();
-                m_adapter.getCyNetworkManager().addNetwork(decorated.export_cy_network());
-                m_adapter.getCyNetworkViewManager().addNetworkView(view);
+                Collection<CyNetworkView> views = renderer.render(batches, null, tm);
+                renderer.commit(views);
+                
+                CyNetworkManager network_mgr = m_adapter.getCyNetworkManager();
+                CyNetworkViewManager view_mgr = m_adapter.getCyNetworkViewManager();
+                
+                network_mgr.addNetwork(aligned.get_network());
+                for (CyNetworkView view : views) {
+                        view_mgr.addNetworkView(view);
+                }
                 // Put the aligned network to local database
                 NetworkDatabase db = NetworkDatabaseSingleton.get_instance();
                 db.add_network_bindings(aligned, new Bindable(aligned, AlignmentNetwork.c_AlignmentBindableId));
-                db.add_network_bindings(aligned, new Bindable(decorated, AlignmentDecorator.c_DecoratedBindableId));
-                db.add_network_bindings(aligned, new Bindable(view, CyNetworkView.class.getName()));
+                
+                // @fixme: have to abandon these bindings
+                for (CyNetworkView view : views) {
+                        db.add_network_bindings(aligned, new Bindable(view, CyNetworkView.class.getName()));
+                }
+                
                 db.add_network_bindings(aligned, new Bindable(g0, AlignmentNetwork.c_AlignmentBindableId + "_g0"));
                 db.add_network_bindings(aligned, new Bindable(g1, AlignmentNetwork.c_AlignmentBindableId + "_g1"));
 
