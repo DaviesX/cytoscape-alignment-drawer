@@ -258,6 +258,12 @@ public class NetworkAligner {
                         }
                         Util.advance_progress(tm, j, total);
                 }
+                // update the edges in the aligned network
+                for (AlignmentNetwork.EdgeIterator i = aligned.EdgeIterator(); i.hasNext();) {
+                        AlignmentNetwork.Edge euid = i.next();
+                        aligned.update_edge_signature(aligned.get_edge_from_suid(euid.m_eid));
+                        Util.advance_progress(tm, j, total);
+                }
         }
 
         public void align_networks_from_data(AlignmentNetwork network0, AlignmentNetwork network1,
