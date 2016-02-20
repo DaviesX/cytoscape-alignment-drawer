@@ -3,8 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="netbeans"/>
+<<<<<<< HEAD
+        <group/>
+=======
         <group>
-            <file>file:/home/davis/cytoscapealignmentdrawerplugin-code/alignmentdrawerplugin/src/research/TaskBuildAlignedNetworks.java</file>
+            <file>file:/home/davis/cytoscapealignmentdrawerplugin-code/alignmentdrawerplugin/src/research/TaskSwitchAlignmentView.java</file>
+            <file>file:/home/davis/cytoscapealignmentdrawerplugin-code/alignmentdrawerplugin/src/research/NetworkDescriptor.java</file>
+            <file>file:/home/davis/cytoscapealignmentdrawerplugin-code/alignmentdrawerplugin/src/research/MenuShowAlignmentSwitch.java</file>
         </group>
+>>>>>>> refs/remotes/origin/master
     </open-files>
 </project-private>

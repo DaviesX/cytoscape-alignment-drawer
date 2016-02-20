@@ -145,9 +145,7 @@ public class TaskSwitchAlignmentView implements Task {
                 } else {
                         // Show everything
                         NetworkRenderer.Shader sha_compl = renderer.create_shader(null, 127);
-                        NetworkRenderer.Shader sha_align = renderer.create_shader(null, 255);
                         batches.add(renderer.create_batch(aligned_compl_desc, sha_compl));
-                        batches.add(renderer.create_batch(aligned_desc, sha_align));
                 }
 
                 Collection<CyNetworkView> views = renderer.render(batches, bindings.view, tm);

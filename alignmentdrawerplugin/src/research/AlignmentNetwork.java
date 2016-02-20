@@ -243,16 +243,6 @@ public class AlignmentNetwork {
                 edge_attri.set(c_EdgeSignature1Slot, sig1);
                 return edge;
         }
-        
-        public void update_edge_signature(CyEdge edge) {
-                CyNode n0 = edge.getSource();
-                CyNode n1 = edge.getTarget();
-                CyRow edge_attri = m_network.getRow(edge);
-                String sig0 = m_network.getRow(n0).get(c_NodeSignatureSlot, String.class);
-                String sig1 = m_network.getRow(n1).get(c_NodeSignatureSlot, String.class);
-                edge_attri.set(c_EdgeSignature0Slot, sig0);
-                edge_attri.set(c_EdgeSignature1Slot, sig1);
-        }
 
         public int add_edge_belongings(CyEdge edge, CyNetwork network) {
                 return add_object_belongings(edge, network);

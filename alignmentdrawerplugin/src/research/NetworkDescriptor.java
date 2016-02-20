@@ -84,39 +84,27 @@ public class NetworkDescriptor {
                         }
                 }
                 // select edges
-                NodeSignatureManager sig_mgr0 = new NodeSignatureManager();
-                NodeSignatureManager sig_mgr1 = new NodeSignatureManager();
+                NodeSignatureManager sig_mgr = new NodeSignatureManager();
                 for (AlignmentNetwork.EdgeIterator i = m_network.EdgeIterator(); i.hasNext();) {
                         AlignmentNetwork.Edge euid = i.next();
                         CyEdge edge = m_network.get_edge_from_suid(euid.m_eid);
-                        
-                        CyNode n0, n1;
-                        sig_mgr0.override_with(euid.m_e0);
-                        sig_mgr1.override_with(euid.m_e1);
-                        n0 = m_network.get_node_from_signature(sig_mgr0);
-                        n1 = m_network.get_node_from_signature(sig_mgr1);
-                        Set<Long> n0_bel = Util.list_to_set(m_network.get_node_belongings(n0));
-                        Set<Long> n1_bel = Util.list_to_set(m_network.get_node_belongings(n1));
-                        
-                        if (with_neighbour_edges) {
-                                if (!is_complement) {
-                                        if (n0_bel.equals(belids) || n1_bel.equals(belids)) {
-                                                m_edges.add(edge);
-                                        }
-                                } else {
-                                        if (!(n0_bel.equals(belids) || n1_bel.equals(belids))) {
-                                                m_edges.add(edge);
-                                        }
-                                }
-                        } else {
-                                if (!is_complement) {
-                                        if (n0_bel.equals(belids) && n1_bel.equals(belids)) {
-                                                m_edges.add(edge);
-                                        }
-                                } else {
-                                        if (!(n0_bel.equals(belids) && n1_bel.equals(belids))) {
-                                                m_edges.add(edge);
-                                        }
+                        Set<Long> belongings = Util.list_to_set(m_network.get_edge_belongings(edge));
+                        boolean cond = (!is_complement && belids.equals(belongings))
+                                       || (is_complement && !belids.equals(belongings));
+                        if (cond) {
+                                m_edges.add(edge);
+                                if (with_neighbour_edges) {
+                                        // neighbours as well
+                                        sig_mgr.override_with(euid.m_e0);
+                                        CyNode n0 = m_network.get_node_from_signature(sig_mgr);
+                                        sig_mgr.override_with(euid.m_e1);
+                                        CyNode n1 = m_network.get_node_from_signature(sig_mgr);
+
+                                        List<CyEdge> n0e = m_network.get_neighbour_edges(n0);
+                                        List<CyEdge> n1e = m_network.get_neighbour_edges(n1);
+
+                                        m_edges.addAll(n0e);
+                                        m_edges.addAll(n1e);
                                 }
                         }
                 }

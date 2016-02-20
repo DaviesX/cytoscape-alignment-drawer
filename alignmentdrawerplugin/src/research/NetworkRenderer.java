@@ -122,10 +122,9 @@ public class NetworkRenderer {
                                 node_view.setVisualProperty(BasicVisualLexicon.NODE_WIDTH, c_NodeWidth);
                                 node_view.setVisualProperty(BasicVisualLexicon.NODE_HEIGHT, c_NodeHeight);
                                 node_view.setVisualProperty(BasicVisualLexicon.NODE_BORDER_WIDTH, 0.0);
-                                node_view.setVisualProperty(BasicVisualLexicon.NODE_BORDER_TRANSPARENCY, 0);
                                 node_view.setVisualProperty(BasicVisualLexicon.NODE_SHAPE, c_NodeShape);
                                 node_view.setVisualProperty(BasicVisualLexicon.NODE_TOOLTIP, 
-                                                            net_node_sigs.get(k ++).get_all_ids().toString());
+                                                            net_node_sigs.get(k ++).toString());
                                 if (shader != null) {
                                         if (shader.m_color != null)
                                                 node_view.setVisualProperty(BasicVisualLexicon.NODE_FILL_COLOR, 
