@@ -18,18 +18,10 @@
 package research;
 
 import java.util.ArrayList;
-<<<<<<< HEAD
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.bidimap.DualLinkedHashBidiMap;
-=======
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
->>>>>>> refs/remotes/origin/master
 
 /**
  * Manage signature identification.
@@ -40,11 +32,7 @@ public class NodeSignatureManager {
 
 //        private final LinkedHashSet<String> m_namespaces = new LinkedHashSet<>();
 //        private final LinkedHashSet<String> m_ids = new LinkedHashSet<>();
-<<<<<<< HEAD
         private final DualLinkedHashBidiMap<String, String> m_node_id = new DualLinkedHashBidiMap<>();
-=======
-        private final DualHashBidiMap<String, String> m_node_id = new DualHashBidiMap<>();
->>>>>>> refs/remotes/origin/master
 
         private final String COMMA = "#";
         private final String SEPARATOR = "/";

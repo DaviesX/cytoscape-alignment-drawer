@@ -93,7 +93,7 @@ public class LoaderGW implements CyNetworkReader, LoaderProtocol {
                 // -2
                 final int c_MinLines = 5;
                 final int c_StartingLine = 4;
-                if (lines.length < c_MinLines || !lines[0].equals("LEDA.GRAPH")) {
+                if (lines.length < c_MinLines || !lines[0].startsWith("LEDA.GRAPH")) {
                         throw new Exception("Invalid LEDA.GRAPH");
                 }
 

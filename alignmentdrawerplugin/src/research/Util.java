@@ -17,6 +17,7 @@
  */
 package research;
 
+import java.awt.Component;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
@@ -126,6 +127,10 @@ public class Util {
                 return (String) JOptionPane.showInputDialog(null, title, prompt,
                                                             JOptionPane.PLAIN_MESSAGE, null,
                                                             list_of_data, default_string);
+        }
+        
+        public static String run_input_dialog(String title, String prompt) {
+                return JOptionPane.showInputDialog(null,  prompt, title, JOptionPane.PLAIN_MESSAGE);
         }
 
         static final Object LOCK = new Object();
