@@ -41,6 +41,7 @@ public class AlignmentDrawerApp extends AbstractCySwingApp {
                 menu.install_protocol(new MenuImportAlignmentFile(sana_loader));
                 menu.install_protocol(new MenuComputeAlignedNetwork());
                 menu.install_protocol(new MenuShowAlignmentSwitch());
+                menu.install_protocol(new MenuHighlighter());
 
                 System.out.println(getClass() + " - AlignmentDrawerAPP is ready to go...");
         }

@@ -19,11 +19,13 @@ package research;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.cytoscape.app.swing.CySwingAppAdapter;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.work.Task;
 import org.cytoscape.work.TaskMonitor;
 
@@ -41,22 +43,46 @@ public class TaskHighlightNode implements Task {
 
         @Override
         public void run(TaskMonitor tm) throws Exception {
+                if (m_sig == null || "".equals(m_sig)) {
+                        System.out.println(getClass().toString() + " - node name is not specified");
+                        return ;
+                }
+                
                 NetworkDatabase db = NetworkDatabaseSingleton.get_instance();
                 CyNetwork curr_net = m_adapter.getCyApplicationManager().getCurrentNetwork();
                 
                 AlignmentNetwork aligned_net = new AlignmentNetwork(curr_net);
-                db.get_network_binding(aligned_net, AlignmentNetwork.c_AlignmentBindableId);
+                CyNetworkView view = (CyNetworkView) db.get_network_binding(aligned_net, CyNetworkView.class.getName()).get_binded();
+                AlignmentNetwork g0 = (AlignmentNetwork) db.get_network_binding(aligned_net, AlignmentNetwork.c_AlignmentBindableId + "_g0").get_binded();
+                AlignmentNetwork g1 = (AlignmentNetwork) db.get_network_binding(aligned_net, AlignmentNetwork.c_AlignmentBindableId + "_g1").get_binded();
+                
+                System.out.println(getClass().toString() + " - Highlighting network: " + aligned_net.get_suggested_name() + 
+                                   ", with view: " + view + ", with node: " + m_sig);
                 
                 NetworkDescriptor desc = new NetworkDescriptor(aligned_net);
                 Set highlight_set = new HashSet();
-                highlight_set.add(m_sig);
+                NodeSignatureManager sig_mgr0 = new NodeSignatureManager();
+                sig_mgr0.add_namespaced_id(g0.get_network_namespace(), m_sig);
+                sig_mgr0.add_namespaced_id(g1.get_network_namespace(), m_sig);
+                
+                NodeSignatureManager sig_mgr1 = new NodeSignatureManager();
+                sig_mgr1.add_namespaced_id(g0.get_network_namespace(), m_sig);
+                
+                NodeSignatureManager sig_mgr2 = new NodeSignatureManager();
+                sig_mgr2.add_namespaced_id(g1.get_network_namespace(), m_sig);
+                
+                highlight_set.add(sig_mgr0);
+                highlight_set.add(sig_mgr1);
+                highlight_set.add(sig_mgr2);
                 desc.select_by_signatures(highlight_set);
                 
-                NetworkRenderer rend = new NetworkRenderer();
-                NetworkRenderer.Shader highlight_sha = rend.create_shader(Color.MAGENTA, 255);
+                NetworkRenderer renderer = new NetworkRenderer();
+                NetworkRenderer.Shader highlight_sha = renderer.create_shader(Color.MAGENTA, 255);
                 List<NetworkRenderer.Batch> batches = new ArrayList<>();
-                batches.add(rend.create_batch(desc, highlight_sha));
-                rend.render(batches);
+                batches.add(renderer.create_batch(desc, highlight_sha));
+                
+                Collection<CyNetworkView> views = renderer.render(batches, view, tm);
+                renderer.commit(views);
         }
 
         @Override

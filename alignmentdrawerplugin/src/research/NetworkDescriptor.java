@@ -122,6 +122,7 @@ public class NetworkDescriptor {
 
                         if (!is_complement) {
                                 if (sigs.contains(sig_mgr)) {
+                                        System.out.println(getClass() + " - Selected node: " + sig_mgr);
                                         m_nodes.add(node);
                                         m_node_sigs.add(sig_mgr);
                                 }
